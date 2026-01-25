@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payments</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{ box-sizing:border-box; font-family:Arial,sans-serif }
+body{ margin:0; background:#f1f3f6 }
+
+.header{ position:fixed; top:0; left:0; width:100%; background:#fff; z-index:1000; box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.header-top{ padding:12px 16px; display:flex; gap:12px; border-bottom:1px solid #eee }
+.back-arrow{ width:10px; height:10px; border-left:2px solid #000; border-bottom:2px solid #000; transform:rotate(45deg); cursor:pointer }
+.header img{ width:100%; display:block }
+.header-space{ height:120px }
+
+.card{ background:#fff; border-radius:8px; margin:8px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+.product-row{ display:flex; gap:12px; align-items:center }
+.product-img{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  border:1px solid #eee;
+  border-radius:6px;
+  padding:5px;
+}
+.product-name{ font-size:14px; font-weight:600 }
+.product-price{ font-size:16px; font-weight:bold; margin-top:4px }
+
+.pay-option{ display:flex; gap:12px; padding:12px; border:2px solid #ddd; border-radius:8px; margin-bottom:10px; cursor:pointer }
+.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
+.pay-option img{ width:28px }
+
+.price-row{ display:flex; justify-content:space-between; margin:8px 0; font-size:14px }
+.free{ color:#388e3c; font-weight:600 }
+
+.bottom-bar{ position:fixed; bottom:0; left:0; width:100%; background:#fff; padding:12px 16px; display:flex; justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.1)}
+.amount{ font-size:18px; font-weight:bold }
+.btn{ background:#fb641b; color:#fff; border:none; padding:12px 24px; font-size:16px; border-radius:4px }
+.btn:disabled{ background:#ccc }
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="back-arrow" onclick="history.back()"></div>
+    <strong>Payments</strong>
+  </div>
+  <img src="assets/images/head.jpg">
+</div>
+<div class="header-space"></div>
+
+<!-- PRODUCT -->
+<div class="card" id="productCard">Loading...</div>
+
+<!-- PAYMENT -->
+<div class="card">
+  <h4>Select Payment Method</h4>
+  <div class="pay-option selected" data-method="phonepe">
+    <img src="assets/images/phonepe-logo.webp"> PhonePe
+  </div>
+  <div class="pay-option" data-method="paytm">
+    <img src="assets/images/paytm.png"> Paytm
+  </div>
+  <div class="pay-option" data-method="gpay">
+    <img src="assets/images/gpay.webp"> Google Pay
+  </div>
+</div>
+
+<!-- PRICE -->
+<div class="card">
+  <h4>Price Details</h4>
+  <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
+  <div class="price-row"><span>Delivery</span><span class="free">FREE</span></div>
+  <hr>
+  <div class="price-row"><strong>Total</strong><strong id="total">₹--</strong></div>
+</div>
+
+<div class="card" id="addressCard">Loading address...</div>
+
+<div style="height:90px"></div>
+
+<div class="bottom-bar">
+  <div class="amount" id="bottomAmount">₹--</div>
+  <button class="btn" id="orderBtn" disabled>Order Now</button>
+</div>
+
+<script>
+let productId = "";
+let productName = "";
+let productPrice = 0;
+let upiId = "";
+
+const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
+const UPI_API = "https://flipback-production.up.railway.app/api/upi";
+
+function getProductId(){
+  return new URLSearchParams(window.location.search).get("id");
+}
+
+// 🔹 Fetch UPI ID
+fetch(UPI_API)
+  .then(res => res.json())
+  .then(data => {
+    upiId = data?.data?.upi_id || data?.upi_id || "";
+  });
+
+// 🔹 Load Product
+async function loadProduct(){
+  productId = getProductId();
+  if(!productId){
+    alert("Product ID missing");
+    return;
+  }
+
+  const res = await fetch(PRODUCTS_API);
+  const data = await res.json();
+
+  const product = data.data.find(p =>
+    String(p.id) === String(productId) ||
+    String(p._id) === String(productId)
+  );
+
+  if(!product){
+    alert("Product not found");
+    return;
+  }
+
+  productName = product.name;
+  productPrice = Number(product.discounted_price || product.price || 0);
+
+  const img = product.main_image || product.image || "https://via.placeholder.com/80";
+
+  productCard.innerHTML = `
+    <div class="product-row">
+      <img src="${img}" class="product-img"
+           onerror="this.src='https://via.placeholder.com/80'">
+      <div>
+        <div class="product-name">${productName}</div>
+        <div class="product-price">₹${productPrice}</div>
+      </div>
+    </div>
+  `;
+
+  price.innerText =
+  total.innerText =
+  bottomAmount.innerText = "₹" + productPrice;
+
+  orderBtn.disabled = false;
+}
+
+// 🔹 Address
+const addr = JSON.parse(localStorage.getItem("userAddress") || "null");
+addressCard.innerHTML = addr ? `
+  <b>${addr.name}</b><br>
+  ${addr.house}, ${addr.city}<br>
+  ${addr.phone}
+` : "No address found";
+
+// 🔹 Open UPI
+function openUPI(){
+  if(!upiId || productPrice <= 0){
+    alert("UPI unavailable");
+    return;
+  }
+
+  const amount = productPrice.toFixed(2);
+  const note = encodeURIComponent(productName.substring(0, 20));
+  const txnId = "ORD" + Date.now();
+
+  // ✅ SAFE & UNIVERSAL UPI LINK
+  const upiURL =
+    `upi://pay?pa=${upiId}` +
+    `&pn=radhavstore` +
+    `&am=${amount}` +
+    `&cu=INR` +
+    `&tn=${note}` +
+    `&tr=${txnId}`;
+
+  window.location.href = upiURL;
+
+  // ✅ Manual confirmation (gateway ke bina best practice)
+  setTimeout(() => {
+    if (confirm("Payment ho gaya?")) {
+      window.location.href =
+        `thankyou.html?id=${productId}&txn=${txnId}`;
+    } else {
+      alert("Payment failed ya cancel ho gaya");
+    }
+  }, 5000);
+}
+
+// 🔹 Button Click
+orderBtn.onclick = openUPI;
+
+// 🔹 Init
+loadProduct();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,255 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f1f3f6;
+}
+
+/* HEADER */
+.header {
+    background: #2874f0;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.left {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.menu { font-size: 22px; }
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.logo span {
+    display: block;
+    font-size: 12px;
+}
+
+.logo b { color: #ffe500; }
+
+.right {
+    display: flex;
+    gap: 15px;
+}
+
+.cart {
+    position: relative;
+}
+
+.badge {
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+    position: absolute;
+    top: -8px;
+    right: -10px;
+}
+
+/* LOCATION */
+.location {
+    background: white;
+    padding: 10px;
+}
+
+.coin {
+    background: #eee;
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+/* 🔥 SEARCH BAR (IMAGE MATCHED) */
+.search-box {
+    margin: 12px;
+    background: white;
+    border: 2px solid #2f80ff;
+    border-radius: 12px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 10px;
+}
+
+.search-box span {
+    color: #2f80ff;
+    font-size: 18px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 15px;
+}
+
+.search-box input::placeholder {
+    color: #888;
+}
+
+/* PREMIUM */
+.premium {
+    margin: 12px;
+    background: #efe7ff;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.premium-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.arrow {
+    background: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.premium-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.card {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.card img {
+    width: 100%;
+    height: 110px;
+    object-fit: contain;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.sub {
+    font-size: 12px;
+    color: #555;
+}
+
+.sub.green { color: green; }
+.sub.orange { color: orange; }
+
+/* PRODUCT DETAIL */
+.product-detail {
+    background: white;
+    margin: 12px;
+    padding: 14px;
+    border-radius: 12px;
+}
+
+.product-title {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.price-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.discount {
+    color: green;
+    font-weight: bold;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: gray;
+}
+
+.new-price {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* BANK OFFER */
+.bank-offer {
+    display: flex;
+    justify-content: space-between;
+    background: #f5faff;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 12px 0;
+}
+
+.apply {
+    color: #2874f0;
+    font-weight: bold;
+}
+
+/* BUY NOW */
+.wow-deal {
+    width: 100%;
+    background: #005eff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.offer-text {
+    font-size: 13px;
+    color: #555;
+}
+
+.delivery {
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.emi-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: white;
+}
+
+.buy-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #ff9f00;
+    font-weight: bold;
+}
+
+/* RESPONSIVE */
+@media (min-width: 768px) {
+    .premium-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

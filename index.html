@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flipkart Big Billion Days</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f1f3f6;
+    overflow-x:hidden;
+}
+
+.top-space{
+    height:20px;
+    background:#fff;
+}
+
+.top-image img{
+    width:100%;
+    display:block;
+}
+
+.location-bar{
+    background:#fff;
+    padding:12px;
+    font-size:14px;
+}
+
+.search-wrapper{
+    background:#fff;
+    padding:10px 12px 14px;
+}
+
+.search-box{
+    height:46px;
+    border:2px solid #2f80ff;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+}
+
+.search-box input{
+    border:none;
+    outline:none;
+    width:100%;
+}
+
+.countdown-wrapper {
+    background: #2874f0;
+    padding: 16px 12px;
+    margin: 12px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+}
+
+.countdown-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.countdown-timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-box {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    border-radius: 8px;
+    min-width: 55px;
+}
+
+.time-value {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.time-label {
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.time-separator {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.countdown-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+    .time-box {
+        min-width: 60px;
+        padding: 8px 6px;
+    }
+    
+    .time-value {
+        font-size: 24px;
+    }
+    
+    .time-label {
+        font-size: 11px;
+    }
+    
+    .countdown-title {
+        font-size: 16px;
+    }
+}
+
+.promo-wrapper{
+    background:#fff;
+    padding:12px 0 20px;
+}
+
+.promo-slider{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+}
+
+.promo-slider::-webkit-scrollbar{
+    display:none;
+}
+
+.promo-card{
+    flex:0 0 100%;
+    padding:0 12px;
+    scroll-snap-align:center;
+}
+
+.promo-card img{
+    width:100%;
+    border-radius:16px;
+}
+
+.promo-dots{
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    margin-top:10px;
+}
+
+.dot{
+    width:6px;
+    height:6px;
+    background:#cfcfcf;
+    border-radius:50%;
+}
+
+.dot.active{
+    width:16px;
+    background:#000;
+    border-radius:10px;
+}
+
+.product-section{
+    background:#fff;
+    border-radius:20px;
+    padding:2px;
+    margin-bottom: 20px;
+}
+
+.product-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:2px;
+}
+
+.product-card{
+    background:#fff;
+    border-radius:3px;
+    padding:12px;
+    overflow:hidden;
+    cursor:pointer;
+    border: 1px solid #e0e0e0;
+}
+
+.badge-container {
+    margin-bottom: 8px;
+}
+
+.bestseller-badge {
+    background: #ff9f00;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 2px;
+    display: inline-block;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.trending-badge {
+    background: #ff6b6b;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 2px;
+    display: inline-block;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+/* Image container */
+.product-img{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:140px;
+    margin-bottom: 12px;
+}
+
+.product-img img{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+}
+
+/* Product name image ke niche rahega */
+.product-name-container {
+    margin-bottom: 8px;
+}
+
+.product-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #212121;
+    line-height: 1.3;
+    height: 36px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.price-container {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.original-price {
+    font-size: 12px;
+    color: #878787;
+    text-decoration: line-through;
+}
+
+.discounted-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #212121;
+}
+
+.discount-percent {
+    font-size: 12px;
+    font-weight: 600;
+    color: #388e3c;
+    background: #f0f9ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.offer-container {
+    background: #fff8e6;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+}
+
+.wow-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: #212121;
+    display: inline;
+    margin-right: 6px;
+}
+
+.offer-price {
+    font-size: 12px;
+    color: #212121;
+    font-weight: 500;
+    display: inline;
+}
+
+.rating-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+/* STARS GREEN KAR DIYA MERE BHAI */
+.stars {
+    color: #388e3c; /* Green color for stars */
+    font-size: 14px;
+}
+
+.rating-count {
+    font-size: 11px;
+    color: #878787;
+}
+
+.assured-badge {
+    font-size: 10px;
+    color: #388e3c;
+    font-weight: 600;
+    background: #f0f9ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-left: 4px;
+}
+
+.location-bar {
+    background: #fff;
+    padding: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #212121;
+    font-weight: 500;
+}
+
+.location-icon {
+    font-size: 1px;
+    color: #000000;
+}
+
+.location-text {
+    color: #212121;
+}
+
+.select-location {
+    color: #2874f0;
+    text-decoration: none;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.select-location:hover {
+    text-decoration: underline;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: #878787;
+    grid-column: 1 / -1;
+}
+
+.load-more-btn {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.load-more-btn button {
+    background: #2874f0;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.load-more-btn button:hover {
+    background: #1a5fcf;
+}
+
+.load-more-btn button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.loader {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2874f0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.footer {
+    background: #fff;
+    padding: 20px;
+    text-align: center;
+    color: #878787;
+    font-size: 14px;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 20px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.time-box {
+    animation: pulse 2s infinite;
+}
+
+.no-products {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-size: 16px;
+}
+
+.skeleton-card{
+    background:#fff;
+    border-radius:14px;
+    padding:12px;
+    overflow:hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.skeleton-img{
+    height:140px;
+    background:#f0f0f0;
+    position:relative;
+    overflow:hidden;
+    margin-bottom: 12px;
+}
+
+.skeleton-img::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);
+    animation:skeleton-loading 1.5s infinite;
+}
+
+.skeleton-content{
+    padding:0;
+}
+
+.skeleton-title{
+    height:18px;
+    width:80%;
+    background:#f0f0f0;
+    border-radius:4px;
+    margin-bottom:10px;
+    position:relative;
+    overflow:hidden;
+}
+
+.skeleton-title::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);
+    animation:skeleton-loading 1.5s infinite 0.2s;
+}
+
+.skeleton-price{
+    height:22px;
+    width:40%;
+    background:#f0f0f0;
+    border-radius:4px;
+    position:relative;
+    overflow:hidden;
+}
+
+.skeleton-price::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent);
+    animation:skeleton-loading 1.5s infinite 0.4s;
+}
+
+@keyframes skeleton-loading{
+    0%{left:-100%;}
+    100%{left:100%;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-space"></div>
+<div class="top-image">
+    <img src="assets/images/topup.png" alt="Top Banner">
+</div>
+<div class="location-bar">
+    <span class="location-icon"><img src="assets/images/location.png" alt=""></span>
+    <span class="location-text">Location not set</span> 
+    <a href="#" class="select-location">Select delivery location ></a>
+</div>
+
+<div class="search-wrapper">
+    <div class="search-box"><input placeholder="Search for Products"></div>
+</div>
+
+<div class="promo-wrapper">
+    <div class="promo-slider" id="slider">
+        <div class="promo-card"><img src="assets/images/banner1.webp" alt="Banner 1"></div>
+        <div class="promo-card"><img src="assets/images/banner2.webp" alt="Banner 2"></div>
+        <div class="promo-card"><img src="assets/images/banner3.webp" alt="Banner 3"></div>
+        <div class="promo-card"><img src="assets/images/banner4.webp" alt="Banner 4"></div>
+    </div>
+    <div class="promo-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+</div>
+
+<div class="countdown-wrapper">
+    <div class="countdown-title">Flipkart Big Billion Days - Sale Ending Soon!</div>
+    <div class="countdown-timer">
+        <div class="time-box">
+            <div class="time-value" id="hours">00</div>
+            <div class="time-label">Hours</div>
+        </div>
+        <div class="time-separator">:</div>
+        <div class="time-box">
+            <div class="time-value" id="minutes">14</div>
+            <div class="time-label">Minutes</div>
+        </div>
+        <div class="time-separator">:</div>
+        <div class="time-box">
+            <div class="time-value" id="seconds">40</div>
+            <div class="time-label">Seconds</div>
+        </div>
+    </div>
+    <div class="countdown-subtitle">Hurry! Deals are selling out fast</div>
+</div>
+
+<div class="product-section">
+    <div class="product-grid" id="productGrid">
+        <!-- Skeleton loaders remain same -->
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-price"></div>
+            </div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-price"></div>
+            </div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-price"></div>
+            </div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-price"></div>
+            </div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-price"></div>
+            </div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-price"></div>
+            </div>
+        </div>
+    </div>
+    <div class="load-more-btn" id="loadMoreBtn" style="display: none;">
+        <button id="loadMoreButton">Load More Products</button>
+    </div>
+</div>
+
+<script>
+function updateCountdownTimer() {
+    const hoursElement = document.getElementById('hours');
+    const minutesElement = document.getElementById('minutes');
+    const secondsElement = document.getElementById('seconds');
+    
+    let hours = parseInt(hoursElement.textContent) || 0;
+    let minutes = parseInt(minutesElement.textContent) || 14;
+    let seconds = parseInt(secondsElement.textContent) || 40;
+    
+    seconds--;
+    
+    if (seconds < 0) {
+        seconds = 59;
+        minutes--;
+        
+        if (minutes < 0) {
+            minutes = 59;
+            hours--;
+            
+            if (hours < 0) {
+                hours = 0;
+                minutes = 0;
+                seconds = 0;
+                
+                document.querySelector('.countdown-title').textContent = 'Flash Sale Ended!';
+                document.querySelector('.countdown-subtitle').textContent = 'Check back soon for more deals';
+                document.querySelector('.countdown-timer').style.display = 'none';
+                document.querySelector('.countdown-wrapper').style.background = 'linear-gradient(135deg, #666, #888)';
+                
+                clearInterval(timerInterval);
+                return;
+            }
+        }
+    }
+    
+    const hoursStr = hours.toString().padStart(2, '0');
+    const minutesStr = minutes.toString().padStart(2, '0');
+    const secondsStr = seconds.toString().padStart(2, '0');
+    
+    hoursElement.textContent = hoursStr;
+    minutesElement.textContent = minutesStr;
+    secondsElement.textContent = secondsStr;
+}
+
+const timerInterval = setInterval(updateCountdownTimer, 1000);
+
+const slider = document.getElementById("slider");
+const dots = document.querySelectorAll(".dot");
+const slides = document.querySelectorAll(".promo-card");
+let index = 0;
+const totalSlides = slides.length;
+
+function updateSlider() {
+    const slideWidth = slider.clientWidth;
+    slider.scrollTo({ left: index * slideWidth, behavior: "smooth" });
+    dots.forEach(dot => dot.classList.remove("active"));
+    dots[index].classList.add("active");
+}
+
+document.querySelector('.select-location').addEventListener('click', function(event) {
+    event.preventDefault();
+    window.location.href = 'address.html';
+});
+
+setInterval(() => { 
+    index++; 
+    if(index >= totalSlides) index = 0; 
+    updateSlider(); 
+}, 3000);
+
+slider.addEventListener("scroll", () => {
+    const slideWidth = slider.clientWidth;
+    index = Math.round(slider.scrollLeft / slideWidth);
+    dots.forEach(dot => dot.classList.remove("active"));
+    if(dots[index]) dots[index].classList.add("active");
+});
+
+const productGrid = document.getElementById("productGrid");
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+const loadMoreButton = document.getElementById("loadMoreButton");
+
+const API_URL = "https://flipback-production.up.railway.app/api/products";
+
+let currentPage = 1;
+const productsPerPage = 6;
+let allProducts = [];
+let displayedProducts = 0;
+let isLoading = false;
+
+function formatPrice(price){
+    if(price === undefined || price === null || price === '' || isNaN(price)) {
+        return "₹0";
+    }
+    
+    const num = parseFloat(price);
+    if(isNaN(num)) return "₹0";
+    
+    return '₹' + num.toLocaleString('en-IN');
+}
+
+function calculateDiscountPercent(originalPrice, discountedPrice){
+    if(!originalPrice || !discountedPrice || originalPrice <= 0 || discountedPrice <= 0) return 0;
+    
+    const original = parseFloat(originalPrice);
+    const discounted = parseFloat(discountedPrice);
+    
+    if(isNaN(original) || isNaN(discounted) || original <= discounted) return 0;
+    
+    const discount = ((original - discounted) / original) * 100;
+    return Math.round(discount * 10) / 10; // Return with one decimal
+}
+
+function createProductCard(p, productId) {
+    const originalPrice = p.price || 0;
+    const discountAmount = p.discount_amount || 0;
+    const discountPercent = p.discount_percent || 0;
+    const discountedPrice = p.discounted_price || 0;
+    
+    let sellingPrice = discountedPrice;
+    
+    if (!sellingPrice && originalPrice && discountAmount) {
+        sellingPrice = parseFloat(originalPrice) - parseFloat(discountAmount);
+    } else if (!sellingPrice && originalPrice && discountPercent) {
+        sellingPrice = parseFloat(originalPrice) * (1 - parseFloat(discountPercent)/100);
+    } else if (!sellingPrice || sellingPrice === 0) {
+        sellingPrice = parseFloat(originalPrice);
+    }
+    
+    if(isNaN(sellingPrice)) sellingPrice = 0;
+    
+    let finalDiscountPercent = discountPercent;
+    if (!finalDiscountPercent && originalPrice > 0 && sellingPrice > 0) {
+        finalDiscountPercent = calculateDiscountPercent(originalPrice, sellingPrice);
+    }
+    
+    const formattedOriginalPrice = formatPrice(originalPrice);
+    const formattedSellingPrice = formatPrice(sellingPrice);
+    
+    // Calculate bank offer price (5% additional discount)
+    const bankOfferPrice = sellingPrice > 0 ? sellingPrice * 0.95 : 0;
+    const formattedBankOfferPrice = formatPrice(Math.round(bankOfferPrice));
+    
+    let imageSrc = "";
+    if (p.image) {
+        imageSrc = p.image;
+    } else if (p.main_image) {
+        imageSrc = p.main_image;
+    } else {
+        imageSrc = 'https://via.placeholder.com/400x400?text=Product+Image';
+    }
+    
+    const productName = p.name || "Product Name";
+    
+    // Determine badge type
+    const isBestseller = Math.random() > 0.5;
+    const isTrending = !isBestseller && Math.random() > 0.5;
+    
+    // Generate random rating
+    const rating = (Math.random() * 2 + 3).toFixed(1);
+    const ratingCount = Math.floor(Math.random() * 1000) + 100;
+    
+    // Format discount percent
+    let displayDiscountPercent = finalDiscountPercent;
+    if (finalDiscountPercent > 0) {
+        // Show one decimal place
+        displayDiscountPercent = finalDiscountPercent.toFixed(1);
+        // Remove trailing .0
+        if (displayDiscountPercent.endsWith('.0')) {
+            displayDiscountPercent = displayDiscountPercent.slice(0, -2);
+        }
+    }
+    
+    return `
+        <div class="product-card" data-id="${productId}">
+            ${isBestseller ? '<div class="bestseller-badge">Bestseller</div>' : ''}
+            ${isTrending ? '<div class="trending-badge">Trending</div>' : ''}
+            
+            <div class="product-img">
+                <img src="${imageSrc}" alt="${productName}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=Product+Image'">
+            </div>
+            
+            <div class="product-name-container">
+                <div class="product-name">${productName}</div>
+            </div>
+            
+            <div class="price-container">
+                ${originalPrice > sellingPrice && sellingPrice > 0 ? 
+                    `<span class="original-price">${formattedOriginalPrice}</span>` : 
+                    ''
+                }
+                <span class="discounted-price">${formattedSellingPrice}</span>
+                ${finalDiscountPercent > 0 ? 
+                    `<span class="discount-percent">↓${displayDiscountPercent}%</span>` : 
+                    ''
+                }
+            </div>
+            
+            <div class="offer-container">
+                <span class="wow-text">WOW!</span>
+                <span class="offer-price">${formattedBankOfferPrice} with Bank offer</span>
+            </div>
+            
+            <div class="rating-container">
+                <span class="stars">${'★'.repeat(Math.floor(rating))}${rating % 1 >= 0.5 ? '★' : ''}</span>
+                <span class="rating-count">${ratingCount}</span>
+                <span class="assured-badge">Assured</span>
+            </div>
+        </div>
+    `;
+}
+
+async function loadInitialProducts() {
+    try {
+        isLoading = true;
+        
+        const res = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!res.ok) {
+            throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        
+        // Clear skeleton loaders
+        productGrid.innerHTML = '';
+        
+        // Check if data exists and has products
+        if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
+            allProducts = data.data.map((item, index) => ({
+                id: item.id || `product-${index}`,
+                ...item
+            }));
+            
+            displayNextProducts();
+            
+        } else if (data && Array.isArray(data) && data.length > 0) {
+            allProducts = data.map((item, index) => ({
+                id: item.id || `product-${index}`,
+                ...item
+            }));
+            
+            displayNextProducts();
+            
+        } else {
+            // No products available
+            productGrid.innerHTML = `
+                <div class="no-products">
+                    <p>No products available at the moment.</p>
+                    <p style="font-size: 14px; margin-top: 10px; color: #888;">Check back soon for new deals!</p>
+                </div>
+            `;
+            loadMoreBtn.style.display = 'none';
+        }
+        
+    } catch(err) {
+        console.error('Error loading products:', err);
+        productGrid.innerHTML = `
+            <div class="no-products">
+                <p>Failed to load products from server.</p>
+                <p style="font-size: 12px; margin-top: 10px;">Please check your internet connection and try again.</p>
+                <p style="font-size: 12px; margin-top: 5px; color: #999;">Error: ${err.message}</p>
+            </div>
+        `;
+        loadMoreBtn.style.display = 'none';
+    } finally {
+        isLoading = false;
+    }
+}
+
+function displayNextProducts() {
+    const startIndex = displayedProducts;
+    const endIndex = Math.min(startIndex + productsPerPage, allProducts.length);
+    
+    const fragment = document.createDocumentFragment();
+    
+    for (let i = startIndex; i < endIndex; i++) {
+        const product = allProducts[i];
+        const cardHtml = createProductCard(product, product.id);
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cardHtml;
+        const cardElement = tempDiv.firstElementChild;
+        
+        cardElement.addEventListener("click", () => {
+            window.location.href = `view.html?id=${product.id}`;
+        });
+        
+        fragment.appendChild(cardElement);
+    }
+    
+    productGrid.appendChild(fragment);
+    displayedProducts = endIndex;
+    
+    if (displayedProducts < allProducts.length) {
+        loadMoreBtn.style.display = 'block';
+        loadMoreButton.disabled = false;
+        loadMoreButton.textContent = 'Load More Products';
+    } else {
+        loadMoreBtn.style.display = 'none';
+    }
+    
+    isLoading = false;
+}
+
+loadMoreButton.addEventListener('click', () => {
+    if (isLoading) return;
+    
+    loadMoreButton.disabled = true;
+    loadMoreButton.innerHTML = '<span class="loader"></span> Loading...';
+    isLoading = true;
+    
+    setTimeout(() => {
+        displayNextProducts();
+    }, 500);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadInitialProducts();
+    
+    const searchInput = document.querySelector('.search-box input');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        
+        searchTimeout = setTimeout(() => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                productGrid.innerHTML = '';
+                displayedProducts = 0;
+                displayNextProducts();
+                return;
+            }
+            
+            const filteredProducts = allProducts.filter(product => 
+                product.name && product.name.toLowerCase().includes(searchTerm)
+            );
+            
+            productGrid.innerHTML = '';
+            
+            if (filteredProducts.length === 0) {
+                productGrid.innerHTML = `
+                    <div class="no-products">
+                        No products found for "${searchTerm}". Try a different search term.
+                    </div>
+                `;
+                loadMoreBtn.style.display = 'none';
+            } else {
+                filteredProducts.forEach(product => {
+                    const cardHtml = createProductCard(product, product.id);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cardHtml;
+                    const cardElement = tempDiv.firstElementChild;
+                    
+                    cardElement.addEventListener("click", () => {
+                        window.location.href = `view.html?id=${product.id}`;
+                    });
+                    
+                    productGrid.appendChild(cardElement);
+                });
+                
+                loadMoreBtn.style.display = 'none';
+            }
+        }, 300);
+    });
+});
+</script>
+</body>
+</html>

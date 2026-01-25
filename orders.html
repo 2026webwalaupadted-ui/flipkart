@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Orders - Flipkart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f1f3f6;
+    color: #212121;
+}
+
+/* Header */
+.header {
+    background: #2874f0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,.1);
+}
+
+.back-btn {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 4px;
+}
+
+.header h1 {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    flex: 1;
+}
+
+/* Main Content */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* Order Card - Flipkart Style */
+.order-card {
+    background: white;
+    border-radius: 2px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+}
+
+.order-header {
+    background: #f5f5f5;
+    padding: 14px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-id {
+    font-size: 14px;
+    color: #212121;
+    font-weight: 500;
+}
+
+.order-date {
+    font-size: 14px;
+    color: #878787;
+}
+
+.order-status {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: #26a541;
+    color: white;
+    font-weight: 500;
+}
+
+/* Order Details */
+.order-details {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.product-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-name {
+    font-size: 14px;
+    color: #212121;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.product-price {
+    font-size: 16px;
+    font-weight: 500;
+    color: #212121;
+    margin-bottom: 8px;
+}
+
+.delivery-date {
+    font-size: 13px;
+    color: #388e3c;
+    font-weight: 500;
+}
+
+/* Order Footer */
+.order-footer {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: 1px solid #c2c2c2;
+    border-radius: 2px;
+    background: white;
+    color: #212121;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    border-color: #2874f0;
+    color: #2874f0;
+}
+
+.btn-primary {
+    background: #2874f0;
+    border-color: #2874f0;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1c6ae4;
+    color: white;
+}
+
+.total-amount {
+    font-size: 16px;
+    font-weight: 500;
+    color: #212121;
+}
+
+/* No Orders */
+.no-orders {
+    text-align: center;
+    background: white;
+    padding: 60px 20px;
+    border-radius: 2px;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+}
+
+.no-orders img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.no-orders h3 {
+    font-size: 18px;
+    color: #212121;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.no-orders p {
+    font-size: 14px;
+    color: #878787;
+    margin-bottom: 24px;
+}
+
+.btn-shopping {
+    background: #2874f0;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-shopping:hover {
+    background: #1c6ae4;
+}
+
+/* Status Colors */
+.status-delivered {
+    background: #26a541;
+}
+
+.status-shipped {
+    background: #ff9f00;
+}
+
+.status-confirmed {
+    background: #2874f0;
+}
+
+.status-cancelled {
+    background: #ff6161;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+    border-radius: 2px 2px 0 0;
+    overflow: hidden;
+}
+
+.filter-tab {
+    padding: 16px 24px;
+    font-size: 14px;
+    color: #212121;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.filter-tab.active {
+    color: #2874f0;
+    border-bottom-color: #2874f0;
+    font-weight: 500;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 2px;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+}
+
+.loading p {
+    color: #878787;
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .order-header,
+    .order-details,
+    .order-footer {
+        padding: 12px 16px;
+    }
+    
+    .order-actions {
+        flex-wrap: wrap;
+    }
+    
+    .filter-tab {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <a href="index.html" class="back-btn">‹</a>
+    <h1>My Orders</h1>
+</div>
+
+<div class="container">
+    <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterOrders('all')">All Orders</button>
+        <button class="filter-tab" onclick="filterOrders('confirmed')">Confirmed</button>
+        <button class="filter-tab" onclick="filterOrders('shipped')">Shipped</button>
+        <button class="filter-tab" onclick="filterOrders('delivered')">Delivered</button>
+    </div>
+
+    <div id="ordersList">
+        <div class="loading">
+            <div style="width: 40px; height: 40px; border: 3px solid #f1f3f6; border-top-color: #2874f0; border-radius: 50%; margin: 0 auto; animation: spin 1s linear infinite;"></div>
+            <p>Loading your orders...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sample product images for demo
+const productImages = [
+    'https://rukminim2.flixcart.com/image/312/312/xif0q/mobile/e/g/g/-original-imagxc4qepz9hgdy.jpeg',
+    'https://rukminim2.flixcart.com/image/312/312/xif0q/headphone/a/x/6/-original-imagz3jqupgvjzzh.jpeg',
+    'https://rukminim2.flixcart.com/image/312/312/xif0q/shoe/7/2/m/6-tm-12-2blk-aadi-42-black-original-imagpxrq2nfnfggz.jpeg',
+    'https://rukminim2.flixcart.com/image/312/312/xif0q/computer/y/n/h/-original-imagz7qpr5hq2wvb.jpeg',
+    'https://rukminim2.flixcart.com/image/312/312/xif0q/television/k/n/e/-original-imagz6xg2n6y6qaz.jpeg'
+];
+
+// Sample product names
+const productNames = [
+    'Samsung Galaxy S23 Ultra 5G (Green, 256 GB)',
+    'Noise ColorFit Pro 4 Smart Watch',
+    'Nike Air Max 270 Running Shoes',
+    'HP Pavilion Gaming Laptop, Ryzen 5',
+    'Sony Bravia 55 inch 4K Ultra HD Smart LED TV'
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadOrders();
+});
+
+function loadOrders() {
+    const ordersList = document.getElementById('ordersList');
+    
+    // Get orders from localStorage
+    let orders = JSON.parse(localStorage.getItem('userOrders')) || [];
+    
+    // Add some demo orders if none exist (for testing)
+    if (orders.length === 0) {
+        orders = generateDemoOrders();
+    }
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = `
+            <div class="no-orders">
+                <img src="https://rukminim2.flixcart.com/www/800/800/promos/16/05/2019/d438a32e-765a-4d8b-b4a6-520b560971e8.png" alt="No Orders">
+                <h3>No Orders Yet</h3>
+                <p>You haven't placed any orders yet.</p>
+                <a href="index.html" class="btn-shopping">START SHOPPING</a>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort orders by date (newest first)
+    orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Display orders
+    ordersList.innerHTML = orders.map(order => `
+        <div class="order-card" data-status="${order.status}">
+            <div class="order-header">
+                <div>
+                    <div class="order-id">Order ID: ${order.id}</div>
+                    <div class="order-date">Placed on ${formatDate(order.date)}</div>
+                </div>
+                <span class="order-status status-${order.status}">${order.status.toUpperCase()}</span>
+            </div>
+            
+            <div class="order-details">
+                <div class="product-item">
+                    <img src="${order.image || 'https://rukminim2.flixcart.com/www/800/800/promos/16/05/2019/d438a32e-765a-4d8b-b4a6-520b560971e8.png'}" 
+                         class="product-image" 
+                         alt="${order.productName}"
+                         onerror="this.src='https://rukminim2.flixcart.com/www/800/800/promos/16/05/2019/d438a32e-765a-4d8b-b4a6-520b560971e8.png'">
+                    <div class="product-info">
+                        <div class="product-name">${order.productName || 'Product'}</div>
+                        <div class="product-price">₹${order.amount}</div>
+                        ${getDeliveryDate(order.date, order.status)}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-footer">
+                <div class="order-actions">
+                    <button class="btn" onclick="trackOrder('${order.id}')">TRACK ORDER</button>
+                    <button class="btn" onclick="viewOrderDetails('${order.id}')">VIEW DETAILS</button>
+                    ${order.status === 'delivered' ? '<button class="btn" onclick="rateProduct()">RATE PRODUCT</button>' : ''}
+                </div>
+                <div class="total-amount">Total: ₹${order.amount}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterOrders(status) {
+    // Update active tab
+    const tabs = document.querySelectorAll('.filter-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Show/hide orders based on status
+    const orderCards = document.querySelectorAll('.order-card');
+    
+    orderCards.forEach(card => {
+        if (status === 'all' || card.dataset.status === status) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // If no orders visible for this filter
+    const visibleOrders = Array.from(orderCards).filter(card => card.style.display !== 'none');
+    if (visibleOrders.length === 0) {
+        const ordersList = document.getElementById('ordersList');
+        const statusText = status === 'all' ? '' : status;
+        ordersList.innerHTML += `
+            <div class="no-orders" style="margin-top: 16px;">
+                <img src="https://rukminim2.flixcart.com/www/800/800/promos/16/05/2019/d438a32e-765a-4d8b-b4a6-520b560971e8.png" alt="No Orders">
+                <h3>No ${statusText} Orders</h3>
+                <p>You don't have any ${statusText} orders yet.</p>
+                <a href="index.html" class="btn-shopping">CONTINUE SHOPPING</a>
+            </div>
+        `;
+    }
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day} ${month} ${year}`;
+}
+
+function getDeliveryDate(orderDate, status) {
+    const date = new Date(orderDate);
+    
+    if (status === 'delivered') {
+        date.setDate(date.getDate() + 2);
+        return `<div class="delivery-date">Delivered on ${formatDate(date)}</div>`;
+    } else if (status === 'shipped') {
+        date.setDate(date.getDate() + 3);
+        return `<div class="delivery-date">Expected Delivery: ${formatDate(date)}</div>`;
+    } else {
+        date.setDate(date.getDate() + 4);
+        return `<div class="delivery-date">Expected Delivery: ${formatDate(date)}</div>`;
+    }
+}
+
+function trackOrder(orderId) {
+    window.open(`track.html?order=${orderId}`, '_blank');
+}
+
+function viewOrderDetails(orderId) {
+    alert(`Order Details:\n\nOrder ID: ${orderId}\nView your order details for more information.`);
+}
+
+function rateProduct() {
+    alert('Rate this product feature coming soon!');
+}
+
+function generateDemoOrders() {
+    const statuses = ['confirmed', 'shipped', 'delivered'];
+    const demoOrders = [];
+    
+    for (let i = 1; i <= 4; i++) {
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        const price = Math.floor(Math.random() * 50000) + 5000;
+        const productIndex = i % productNames.length;
+        
+        demoOrders.push({
+            id: 'OD' + (1000000000 + i),
+            productName: productNames[productIndex],
+            amount: price.toLocaleString('en-IN'),
+            date: new Date(Date.now() - i * 86400000).toISOString(), // i days ago
+            status: status,
+            image: productImages[productIndex]
+        });
+    }
+    
+    // Save demo orders to localStorage
+    localStorage.setItem('userOrders', JSON.stringify(demoOrders));
+    return demoOrders;
+}
+
+// CSS Animation
+const style = document.createElement('style');
+style.textContent = `
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style);
+</script>
+
+</body>
+</html>

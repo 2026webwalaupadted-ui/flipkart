@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>All Customer Images</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    overflow-x: hidden;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: #fff;
+}
+
+.header img {
+    width: 100%;
+    display: block;
+}
+
+.header-space {
+    height: 40px;
+}
+
+.back-btn-container {
+    background: #fff;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 110px;
+    z-index: 900;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #2874f0;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-btn i {
+    font-size: 20px;
+}
+
+.page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #212121;
+}
+
+.images-container {
+    padding: 20px 16px;
+    margin-bottom: 80px;
+}
+
+.images-header {
+    display: none; /* Removed header section */
+}
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px; /* Reduced gap for cleaner look */
+}
+
+@media (min-width: 768px) {
+    .images-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .images-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+}
+
+.image-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.image-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.image-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.reviewer-info {
+    display: none; /* Removed reviewer info section */
+}
+
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 16px;
+    color: #878787;
+}
+
+.loader {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2874f0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 16px;
+    color: #ff6161;
+}
+
+.no-images {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-images-icon {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+}
+
+.no-images h3 {
+    font-size: 18px;
+    color: #212121;
+    margin-bottom: 8px;
+}
+
+.no-images p {
+    color: #878787;
+    font-size: 14px;
+}
+
+/* Image Modal Styles */
+.image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    max-width: 100%;
+    max-height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.modal-image {
+    max-width: 90%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    transition: background 0.3s;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+    z-index: 2001;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.image-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    background: #2874f0;
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(40, 116, 240, 0.3);
+    z-index: 1000;
+    transition: all 0.3s;
+}
+
+.back-to-top:hover {
+    background: #1c65d8;
+    transform: translateY(-2px);
+}
+
+/* Skeleton Loader */
+.skeleton-loader {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 20px 16px;
+}
+
+.skeleton-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-image {
+    height: 200px;
+    background: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-image::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="header">
+    <img src="assets/images/firsttime.png" alt="Top Banner">
+</div>
+<div class="header-space"></div>
+
+
+<div id="imagesContainer">
+    <div class="loading">
+        <span class="loader"></span> Loading images...
+    </div>
+</div>
+
+<button class="back-to-top" id="backToTopBtn" onclick="scrollToTop()">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<div id="imageModal" class="image-modal">
+    <div class="modal-content">
+        <img id="modalImage" class="modal-image" src="" alt="Customer Image">
+        <div class="modal-nav">
+            <button class="nav-btn" id="prevImageBtn">‹</button>
+            <button class="nav-btn" id="nextImageBtn">›</button>
+        </div>
+        <button class="close-modal" id="closeModal">×</button>
+        <div class="image-counter" id="imageCounter">1 / 1</div>
+    </div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const productId = urlParams.get('productId');
+
+const REVIEWS_API_URL = `https://flipback-production.up.railway.app/api/reviews/${productId}`;
+
+let allImages = [];
+let currentModalIndex = 0;
+
+function goBack() {
+    window.history.back();
+}
+
+function showSkeletonLoader() {
+    const container = document.getElementById('imagesContainer');
+    container.innerHTML = `
+        <div class="skeleton-loader">
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+            </div>
+        </div>
+    `;
+}
+
+async function loadAllImages() {
+    const container = document.getElementById('imagesContainer');
+    
+    if (!productId) {
+        container.innerHTML = `
+            <div class="error">
+                No product ID provided.
+                <br><br>
+                <button onclick="goBack()" class="back-btn" style="background:#2874f0;color:white;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;">
+                    Go Back
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    showSkeletonLoader();
+    
+    try {
+        // Fetch reviews from API
+        const response = await fetch(REVIEWS_API_URL);
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.data)) {
+            // Collect all images from all reviews
+            allImages = [];
+            
+            data.data.forEach((review) => {
+                let reviewImages = [];
+                
+                // Method 1: images field directly
+                if (review.images && Array.isArray(review.images)) {
+                    reviewImages = review.images.filter(img => img && img.trim() !== '');
+                } 
+                // Method 2: files field
+                else if (review.files && Array.isArray(review.files)) {
+                    reviewImages = review.files
+                        .map(file => file.url || file.filename || file)
+                        .filter(img => img && img.trim() !== '');
+                }
+                // Method 3: Check for common image fields
+                if (reviewImages.length === 0) {
+                    const possibleImageFields = ['image', 'photo', 'img', 'picture', 'attachment'];
+                    for (const field of possibleImageFields) {
+                        if (review[field] && review[field].trim() !== '') {
+                            reviewImages.push(review[field]);
+                            break;
+                        }
+                    }
+                }
+                
+                // Add each image to the collection (no reviewer info)
+                reviewImages.forEach((imgSrc) => {
+                    allImages.push({
+                        src: imgSrc,
+                        index: allImages.length
+                    });
+                });
+            });
+            
+            // Display images
+            if (allImages.length === 0) {
+                container.innerHTML = `
+                    <div class="no-images">
+                        <div class="no-images-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h3>No Images Available</h3>
+                        <p>No customer images have been uploaded for this product yet.</p>
+                        <br>
+                        <button onclick="goBack()" class="back-btn" style="background:#2874f0;color:white;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;">
+                            Go Back
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Generate images grid HTML (only images, no text)
+            let imagesGridHTML = '';
+            
+            allImages.forEach((image, index) => {
+                imagesGridHTML += `
+                    <div class="image-card" onclick="openImageInModal(${index})">
+                        <img src="${image.src}" 
+                             alt="Customer image"
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=Customer+Image'">
+                    </div>
+                `;
+            });
+            
+            const finalHTML = `
+                <div class="images-container">
+                    <div class="images-grid">
+                        ${imagesGridHTML}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = finalHTML;
+            
+            // Initialize back to top button
+            initBackToTop();
+            
+        } else {
+            throw new Error("Invalid data format from API");
+        }
+        
+    } catch (error) {
+        console.error("Error loading images:", error);
+        container.innerHTML = `
+            <div class="error">
+                <h3>⚠️ Failed to Load Images</h3>
+                <p>Could not load customer images at this time.</p>
+                <p><strong>Error:</strong> ${error.message}</p>
+                <br>
+                <button onclick="location.reload()" class="back-btn" style="background:#2874f0;color:white;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;margin-right:10px;">
+                    Retry
+                </button>
+                <button onclick="goBack()" class="back-btn" style="background:#878787;color:white;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;">
+                    Go Back
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Image Modal Functions
+function openImageInModal(index) {
+    if (!allImages || allImages.length === 0) return;
+    
+    currentModalIndex = index;
+    updateModalImage();
+    document.getElementById('imageModal').style.display = 'flex';
+
+    const imageCounter = document.getElementById('imageCounter');
+    imageCounter.textContent = `${index + 1} / ${allImages.length}`;
+    
+    document.addEventListener('keydown', handleModalKeyboard);
+}
+
+function updateModalImage() {
+    if (allImages.length === 0) return;
+    
+    const modalImage = document.getElementById('modalImage');
+    const imageCounter = document.getElementById('imageCounter');
+    
+    // Ensure index is within bounds
+    if (currentModalIndex < 0) currentModalIndex = allImages.length - 1;
+    if (currentModalIndex >= allImages.length) currentModalIndex = 0;
+    
+    modalImage.src = allImages[currentModalIndex].src;
+    
+    // Update image counter (only image count)
+    imageCounter.textContent = `${currentModalIndex + 1} / ${allImages.length}`;
+    
+    // Update button visibility
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
+    
+    if (allImages.length <= 1) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+    } else {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+    }
+}
+
+function handleModalKeyboard(event) {
+    if (event.key === 'Escape') {
+        closeImageModal();
+    } else if (event.key === 'ArrowLeft') {
+        navigateModalImage(-1);
+    } else if (event.key === 'ArrowRight') {
+        navigateModalImage(1);
+    }
+}
+
+function navigateModalImage(direction) {
+    currentModalIndex += direction;
+    if (currentModalIndex < 0) currentModalIndex = allImages.length - 1;
+    if (currentModalIndex >= allImages.length) currentModalIndex = 0;
+    updateModalImage();
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+    document.removeEventListener('keydown', handleModalKeyboard);
+}
+
+function initImageModal() {
+    const modal = document.getElementById('imageModal');
+    const closeBtn = document.getElementById('closeModal');
+    const prevBtn = document.getElementById('prevImageBtn');
+    const nextBtn = document.getElementById('nextImageBtn');
+    
+    closeBtn.addEventListener('click', closeImageModal);
+    
+    prevBtn.addEventListener('click', () => navigateModalImage(-1));
+    nextBtn.addEventListener('click', () => navigateModalImage(1));
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeImageModal();
+        }
+    });
+}
+
+function initBackToTop() {
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.style.display = 'flex';
+        } else {
+            backToTopBtn.style.display = 'none';
+        }
+    });
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+window.openImageInModal = openImageInModal;
+window.navigateModalImage = navigateModalImage;
+window.closeImageModal = closeImageModal;
+window.goBack = goBack;
+window.scrollToTop = scrollToTop;
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadAllImages();
+    initImageModal();
+});
+</script>
+</body>
+</html>
