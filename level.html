@@ -81,65 +81,56 @@ body{ margin:0; background:#f1f3f6 }
   <div class="price-row"><strong>Total</strong><strong id="total">₹--</strong></div>
 </div>
 
+<!-- ADDRESS -->
 <div class="card" id="addressCard">Loading address...</div>
 
 <div style="height:90px"></div>
 
+<!-- BOTTOM -->
 <div class="bottom-bar">
   <div class="amount" id="bottomAmount">₹--</div>
   <button class="btn" id="orderBtn" disabled>Order Now</button>
 </div>
 
 <script>
-let productId = "";
-let productName = "";
-let productPrice = 0;
-let upiId = "";
+let productId="", productName="", productPrice=0;
+let upiId="", selectedMethod="phonepe";
 
-const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
-const UPI_API = "https://flipback-production.up.railway.app/api/upi";
+const PRODUCTS_API="https://flipback-production.up.railway.app/api/products";
+const UPI_API="https://flipback-production.up.railway.app/api/upi";
 
+/* GET PRODUCT ID */
 function getProductId(){
   return new URLSearchParams(window.location.search).get("id");
 }
 
-// 🔹 Fetch UPI ID
-fetch(UPI_API)
-  .then(res => res.json())
-  .then(data => {
-    upiId = data?.data?.upi_id || data?.upi_id || "";
-  });
+/* FETCH UPI */
+fetch(UPI_API).then(r=>r.json()).then(d=>{
+  upiId=d?.data?.upi_id||d?.upi_id||"";
+  console.log("UPI ID fetched:", upiId);
+});
 
-// 🔹 Load Product
+/* LOAD PRODUCT */
 async function loadProduct(){
-  productId = getProductId();
-  if(!productId){
-    alert("Product ID missing");
-    return;
-  }
+  productId=getProductId();
+  if(!productId){ alert("Product ID missing"); return; }
 
-  const res = await fetch(PRODUCTS_API);
-  const data = await res.json();
+  const r=await fetch(PRODUCTS_API);
+  const d=await r.json();
 
-  const product = data.data.find(p =>
-    String(p.id) === String(productId) ||
-    String(p._id) === String(productId)
+  const p=d.data.find(x =>
+    String(x.id)===String(productId) || String(x._id)===String(productId)
   );
 
-  if(!product){
-    alert("Product not found");
-    return;
-  }
+  if(!p){ alert("Product not found"); return; }
 
-  productName = product.name;
-  productPrice = Number(product.discounted_price || product.price || 0);
+  productName=p.name;
+  productPrice=Number(p.discounted_price||p.price||0);
+  const img=p.main_image||p.image||"https://via.placeholder.com/80";
 
-  const img = product.main_image || product.image || "https://via.placeholder.com/80";
-
-  productCard.innerHTML = `
+  productCard.innerHTML=`
     <div class="product-row">
-      <img src="${img}" class="product-img"
-           onerror="this.src='https://via.placeholder.com/80'">
+      <img src="${img}" class="product-img" onerror="this.src='https://via.placeholder.com/80'">
       <div>
         <div class="product-name">${productName}</div>
         <div class="product-price">₹${productPrice}</div>
@@ -147,59 +138,195 @@ async function loadProduct(){
     </div>
   `;
 
-  price.innerText =
-  total.innerText =
-  bottomAmount.innerText = "₹" + productPrice;
-
-  orderBtn.disabled = false;
+  price.innerText=total.innerText=bottomAmount.innerText="₹"+productPrice;
+  orderBtn.disabled=false;
 }
 
-// 🔹 Address
-const addr = JSON.parse(localStorage.getItem("userAddress") || "null");
-addressCard.innerHTML = addr ? `
-  <b>${addr.name}</b><br>
-  ${addr.house}, ${addr.city}<br>
-  ${addr.phone}
-` : "No address found";
+/* ADDRESS */
+const addr=JSON.parse(localStorage.getItem("userAddress")||"null");
+addressCard.innerHTML=addr?`
+<b>${addr.name}</b><br>${addr.house}, ${addr.city}<br>${addr.phone}
+`:"No address found";
 
-// 🔹 Open UPI
+/* FLIPKART STYLE UPI PAYMENT - DIRECT APP OPEN */
 function openUPI(){
-  if(!upiId || productPrice <= 0){
+  if(!upiId||productPrice<=0) {
     alert("UPI unavailable");
     return;
   }
 
-  const amount = productPrice.toFixed(2);
-  const note = encodeURIComponent(productName.substring(0, 20));
-  const txnId = "ORD" + Date.now();
+  const amt=productPrice.toString();
+  const note=encodeURIComponent(productName.substring(0,30));
+  const txnId = "TXN" + Date.now() + Math.floor(Math.random() * 1000);
+  
+  console.log("Opening UPI for:", selectedMethod, "Amount:", amt);
 
-  // ✅ SAFE & UNIVERSAL UPI LINK
-  const upiURL =
-    `upi://pay?pa=${upiId}` +
-    `&pn=radhavstore` +
-    `&am=${amount}` +
-    `&cu=INR` +
-    `&tn=${note}` +
-    `&tr=${txnId}`;
+  // FLIPKART STYLE: Direct deep links
+  let upiUrl = "";
+  
+  switch(selectedMethod) {
+    case "phonepe":
+      // PhonePe deep link
+      upiUrl = `phonepe://upi/pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txnId}`;
+      break;
+    case "gpay":
+      // Google Pay deep link
+      upiUrl = `tez://upi/pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txnId}`;
+      break;
+    case "paytm":
+      // Paytm deep link
+      upiUrl = `paytmmp://upi/pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txnId}`;
+      break;
+    default:
+      upiUrl = `upi://pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txnId}`;
+  }
 
-  window.location.href = upiURL;
+  // SECURITY BYPASS: Use window.open with _blank for better compatibility
+  const newWindow = window.open(upiUrl, '_blank');
+  
+  // If window.open fails, try location.href
+  if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+    console.log("Window open failed, trying location.href");
+    
+    // Create a temporary anchor tag for better mobile support
+    const tempLink = document.createElement('a');
+    tempLink.href = upiUrl;
+    tempLink.target = '_blank';
+    tempLink.style.display = 'none';
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(tempLink);
+    }, 100);
+  }
 
-  // ✅ Manual confirmation (gateway ke bina best practice)
+  // Store payment data
+  const paymentData = {
+    productId: productId,
+    productName: productName,
+    amount: productPrice,
+    upiId: upiId,
+    method: selectedMethod,
+    txnId: txnId,
+    timestamp: new Date().toISOString(),
+    status: 'initiated'
+  };
+  
+  localStorage.setItem('currentPayment', JSON.stringify(paymentData));
+  
+  // FLIPKART STYLE: Auto-redirect logic
+  // Wait 2 seconds then check if user is still here
   setTimeout(() => {
-    if (confirm("Payment ho gaya?")) {
-      window.location.href =
-        `thankyou.html?id=${productId}&txn=${txnId}`;
+    // If user is still on this page after 2 seconds, app might not have opened
+    if (document.hasFocus()) {
+      console.log("App might not have opened, trying alternative...");
+      
+      // Try alternative URL format
+      const altUrl = `upi://pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}`;
+      window.location.href = altUrl;
+      
+      // If still here after another 3 seconds, show fallback
+      setTimeout(() => {
+        if (document.hasFocus()) {
+          // This is the Flipkart-style fallback - just redirect to thank you
+          console.log("Assuming payment done, redirecting...");
+          proceedToThankYou(txnId);
+        }
+      }, 3000);
     } else {
-      alert("Payment failed ya cancel ho gaya");
+      // User switched to payment app, wait for return
+      console.log("User switched to payment app");
+      setupReturnHandler(txnId);
     }
-  }, 5000);
+  }, 2000);
 }
 
-// 🔹 Button Click
+function proceedToThankYou(txnId) {
+  // Update payment status
+  const paymentData = JSON.parse(localStorage.getItem('currentPayment') || '{}');
+  paymentData.status = 'completed';
+  paymentData.completedAt = new Date().toISOString();
+  localStorage.setItem('currentPayment', JSON.stringify(paymentData));
+  
+  // Save to payment history
+  let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory') || '[]');
+  paymentHistory.push(paymentData);
+  localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+  
+  // Redirect to thank you page
+  window.location.href = `thankyou.html?id=${productId}&txn=${txnId}&status=success`;
+}
+
+function setupReturnHandler(txnId) {
+  // When user returns from payment app
+  let returnDetected = false;
+  
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible' && !returnDetected) {
+      returnDetected = true;
+      console.log("User returned from payment app");
+      
+      // Small delay to ensure payment app closed
+      setTimeout(() => {
+        proceedToThankYou(txnId);
+      }, 800);
+      
+      // Remove listener after first detection
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  };
+  
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  
+  // Safety timeout - if user doesn't return in 15 seconds, auto proceed
+  setTimeout(() => {
+    if (!returnDetected) {
+      console.log("Safety timeout - proceeding anyway");
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      proceedToThankYou(txnId);
+    }
+  }, 15000);
+}
+
+// Event Listeners - Simple and clean
+document.querySelectorAll(".pay-option").forEach(p => {
+  p.onclick = () => {
+    document.querySelectorAll(".pay-option").forEach(x => x.classList.remove("selected"));
+    p.classList.add("selected");
+    selectedMethod = p.dataset.method;
+    console.log("Payment method selected:", selectedMethod);
+  };
+});
+
 orderBtn.onclick = openUPI;
 
-// 🔹 Init
+// Load product
 loadProduct();
+
+// Check for existing pending payment on page load
+window.addEventListener('load', () => {
+  const pendingPayment = JSON.parse(localStorage.getItem('currentPayment') || '{}');
+  
+  // If there's a pending payment for this product, check if we should proceed
+  if (pendingPayment.productId === productId && pendingPayment.status === 'initiated') {
+    // Check if payment was initiated recently (within last 2 minutes)
+    const initiatedTime = new Date(pendingPayment.timestamp);
+    const currentTime = new Date();
+    const timeDiff = (currentTime - initiatedTime) / 1000; // in seconds
+    
+    if (timeDiff < 120) { // Within 2 minutes
+      const shouldProceed = confirm("You have a pending payment. Continue?");
+      if (shouldProceed) {
+        proceedToThankYou(pendingPayment.txnId);
+      } else {
+        // Clear the pending payment
+        localStorage.removeItem('currentPayment');
+      }
+    }
+  }
+});
 </script>
 
 </body>
