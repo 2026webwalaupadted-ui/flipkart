@@ -2,21 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Flipkart Big Billion Days</title>
+<title> Big Billion Days</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Flipkart Big Billion Days Sale - Best Deals">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<!-- Preconnect for faster API calls -->
 <link rel="preconnect" href="https://flipback-production.up.railway.app">
 <link rel="dns-prefetch" href="https://flipback-production.up.railway.app">
 
-<!-- Preload critical images -->
 <link rel="preload" href="assets/images/topup.png" as="image">
 <link rel="preload" href="assets/images/location.png" as="image">
 
 <style>
-/* CSS remains same as before until .no-products */
 *{
     margin:0;
     padding:0;
@@ -653,7 +650,6 @@ body{
 </head>
 <body>
 
-<!-- Network Status Indicator -->
 <div id="networkStatus" class="network-status"></div>
 
 <div class="top-space"></div>
@@ -708,9 +704,8 @@ body{
     <div class="countdown-subtitle">Hurry! Deals are selling out fast</div>
 </div>
 
-<!-- Connection Warning -->
 <div id="connectionWarning" class="connection-warning">
-    <div>⚠️ Slow network detected. Loading optimized version...</div>
+    <div> Slow network detected. Loading optimized version...</div>
     <button id="retryButton" class="retry-button">Retry Loading</button>
 </div>
 
@@ -767,7 +762,7 @@ body{
 </div>
 
 <div class="footer">
-    <p>© 2024 Flipkart Big Billion Days. All rights reserved.</p>
+    <p>© 2024 Big Billion Days. All rights reserved.</p>
 
 </div>
 
@@ -824,7 +819,7 @@ class NetworkManager {
         if (!statusEl) return;
         
         if (this.isOnline) {
-            statusEl.textContent = this.slowConnection ? '🟡 Slow Connection' : '🟢 Online';
+            statusEl.textContent = this.slowConnection ? ' Slow Connection' : ' Online';
             statusEl.className = 'network-status online';
             
             if (this.slowConnection) {
@@ -833,11 +828,10 @@ class NetworkManager {
                 this.hideConnectionWarning();
             }
         } else {
-            statusEl.textContent = '🔴 Offline';
+            statusEl.textContent = ' Offline';
             statusEl.className = 'network-status offline';
         }
         
-        // Auto hide after 3 seconds
         setTimeout(() => {
             statusEl.style.display = 'none';
         }, 3000);
@@ -1404,7 +1398,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const searchTerm = e.target.value.toLowerCase().trim();
             
             if (!searchTerm) {
-                // Reset to normal view
                 productManager.productGrid.innerHTML = '';
                 productManager.displayedProducts = 0;
                 productManager.displayNextProducts();
@@ -1455,7 +1448,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
     
-    // Retry button for connection warning
     document.getElementById('retryButton')?.addEventListener('click', () => {
         productManager.loadInitialProducts();
     });
@@ -1475,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('offline', () => {
         const networkStatus = document.getElementById('networkStatus');
         if (networkStatus) {
-            networkStatus.textContent = '🔴 Offline';
+            networkStatus.textContent = ' Offline';
             networkStatus.className = 'network-status offline';
             networkStatus.style.display = 'block';
         }
@@ -1484,7 +1476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('online', () => {
         const networkStatus = document.getElementById('networkStatus');
         if (networkStatus) {
-            networkStatus.textContent = '🟢 Back Online';
+            networkStatus.textContent = ' Back Online';
             networkStatus.className = 'network-status online';
             networkStatus.style.display = 'block';
             
@@ -1493,8 +1485,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
         }
     });
-    
-    // Debug: Log product count
     console.log('Product Manager initialized');
 });
 </script>
