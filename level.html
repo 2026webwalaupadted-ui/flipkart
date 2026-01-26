@@ -8,58 +8,34 @@
 <style>
 *{ box-sizing:border-box; font-family:Arial,sans-serif }
 body{ margin:0; background:#f1f3f6 }
-
-/* HEADER */
 .header{ position:fixed; top:0; left:0; width:100%; background:#fff; z-index:1000;
   box-shadow:0 2px 4px rgba(0,0,0,.12)}
 .header-top{ padding:12px 16px; display:flex; gap:12px; border-bottom:1px solid #eee }
 .back-arrow{ width:10px; height:10px; border-left:2px solid #000;
   border-bottom:2px solid #000; transform:rotate(45deg); cursor:pointer }
 .header-space{ height:70px }
-
-/* CARD */
 .card{ background:#fff; border-radius:8px; margin:8px; padding:12px;
   box-shadow:0 1px 3px rgba(0,0,0,.08)}
-
-/* PRODUCT */
 .product-row{ display:flex; gap:12px; align-items:center }
 .product-img{ width:70px; height:70px; border:1px solid #eee;
   border-radius:6px; object-fit:contain }
-
-/* PAYMENT OPTIONS */
-.pay-option{
-  display:flex; align-items:center; gap:12px;
-  padding:12px; border:2px solid #ddd;
-  border-radius:8px; margin-bottom:10px;
-  cursor:pointer;
-}
+.pay-option{ display:flex; align-items:center; gap:12px;
+  padding:12px; border:2px solid #ddd; border-radius:8px;
+  margin-bottom:10px; cursor:pointer }
 .pay-option img{ width:28px }
-.pay-option.selected{
-  border-color:#2874f0;
-  background:#f0f7ff;
-}
-
-/* PRICE */
+.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
 .price-row{ display:flex; justify-content:space-between; margin:6px 0 }
-
-/* BOTTOM BAR */
-.bottom-bar{
-  position:fixed; bottom:0; left:0; width:100%;
-  background:#fff; padding:12px;
-  display:flex; justify-content:space-between;
-  box-shadow:0 -1px 3px rgba(0,0,0,.15)
-}
-.btn{
-  background:#fb641b; color:#fff; border:none;
-  padding:12px 22px; font-size:16px; border-radius:4px
-}
+.bottom-bar{ position:fixed; bottom:0; left:0; width:100%;
+  background:#fff; padding:12px; display:flex;
+  justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
+.btn{ background:#fb641b; color:#fff; border:none;
+  padding:12px 22px; font-size:16px; border-radius:4px }
 .btn:disabled{ background:#ccc }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-top">
     <div class="back-arrow" onclick="history.back()"></div>
@@ -68,27 +44,21 @@ body{ margin:0; background:#f1f3f6 }
 </div>
 <div class="header-space"></div>
 
-<!-- PRODUCT -->
 <div class="card" id="productCard">Loading product...</div>
 
-<!-- PAYMENT OPTIONS (UI SAME) -->
 <div class="card">
   <h4>Select Payment Method</h4>
-
   <div class="pay-option selected" data-method="phonepe">
     <img src="assets/images/phonepe-logo.webp"> PhonePe
   </div>
-
   <div class="pay-option" data-method="paytm">
     <img src="assets/images/paytm.png"> Paytm
   </div>
-
   <div class="pay-option" data-method="gpay">
     <img src="assets/images/gpay.webp"> Google Pay
   </div>
 </div>
 
-<!-- PRICE -->
 <div class="card">
   <h4>Price Details</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
@@ -97,65 +67,40 @@ body{ margin:0; background:#f1f3f6 }
   <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
 </div>
 
-<!-- ADDRESS -->
-<div class="card" id="addressCard">Loading address...</div>
+<div class="card" id="addressCard"></div>
 
 <div style="height:90px"></div>
 
-<!-- BOTTOM -->
 <div class="bottom-bar">
   <b id="bottomAmount">₹--</b>
   <button class="btn" id="payBtn" disabled>Pay via UPI</button>
 </div>
 
 <script>
-/* ================= API ================= */
 const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
-const UPI_API      = "https://flipback-production.up.railway.app/api/upi";
+const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
-/* ================= STATE ================= */
-let productId="", productName="", productPrice=0;
-let upiId="";
-let selectedMethod="phonepe"; // UI only
+let productPrice = 0;
+let upiId = "";
+let selectedMethod = "phonepe";
 
-/* ================= HELPERS ================= */
 const qs = k => new URLSearchParams(location.search).get(k);
 
-/* ================= FETCH UPI ================= */
 fetch(UPI_API)
   .then(r=>r.json())
-  .then(d=>{
-    upiId = d?.data?.upi_id || d?.upi_id || "";
-    if(!upiId) alert("UPI ID API se nahi aayi");
-  })
-  .catch(()=>alert("UPI API failed"));
+  .then(d=> upiId = d?.data?.upi_id || d?.upi_id || "");
 
-/* ================= LOAD PRODUCT ================= */
 async function loadProduct(){
-  productId = qs("id");
-  if(!productId){ alert("Product ID missing"); return; }
-
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
-
-  const p = d.data.find(x =>
-    String(x.id)===String(productId) ||
-    String(x._id)===String(productId)
-  );
-  if(!p){ alert("Product not found"); return; }
-
-  productName  = p.name;
+  const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
   productPrice = Number(p.discounted_price || p.price || 0);
 
   productCard.innerHTML = `
     <div class="product-row">
       <img src="${p.main_image||p.image}" class="product-img">
-      <div>
-        <b>${productName}</b><br>
-        ₹${productPrice}
-      </div>
-    </div>
-  `;
+      <div>₹${productPrice}</div>
+    </div>`;
 
   price.innerText =
   total.innerText =
@@ -164,43 +109,26 @@ async function loadProduct(){
   payBtn.disabled = false;
 }
 
-/* ================= ADDRESS ================= */
-const addr = JSON.parse(localStorage.getItem("userAddress")||"null");
-addressCard.innerHTML = addr
- ? `<b>${addr.name}</b><br>${addr.house}, ${addr.city}<br>${addr.phone}`
- : "No address found";
-
-/* ================= PAYMENT OPTION UI ================= */
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
-    document.querySelectorAll(".pay-option")
-      .forEach(x=>x.classList.remove("selected"));
+    document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
     p.classList.add("selected");
-    selectedMethod = p.dataset.method; // sirf UI ke liye
+    selectedMethod = p.dataset.method;
   };
 });
 
-/* ================= UNIVERSAL UPI LOGIC ================= */
 function payNow(){
-  if(!upiId){ alert("UPI ready nahi hai"); return; }
+  if(!upiId) return alert("UPI not ready");
 
-  const txn  = "TXN" + Date.now();
-  const note = encodeURIComponent(productName.slice(0,30));
+  let url="";
+  if(selectedMethod==="phonepe")
+    url=`phonepe://pay?pa=${upiId}&am=${productPrice}&cu=INR`;
+  if(selectedMethod==="paytm")
+    url=`paytmmp://pay?pa=${upiId}&am=${productPrice}&cu=INR`;
+  if(selectedMethod==="gpay")
+    url=`tez://upi/pay?pa=${upiId}&am=${productPrice}&cu=INR`;
 
-  // 🔥 SAME FOR PHONEPE / PAYTM / GPAY
-  const upiURL =
-    `upi://pay?pa=${upiId}`+
-    `&pn=Flipkart`+
-    `&am=${productPrice}`+
-    `&cu=INR`+
-    `&tn=${note}`+
-    `&tr=${txn}`;
-
-  window.location.href = upiURL;
-
-  setTimeout(()=>{
-    alert("Payment ke baad status check karo");
-  },4000);
+  window.location.href = url;
 }
 
 payBtn.onclick = payNow;
