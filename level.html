@@ -46,20 +46,6 @@ body{margin:0;background:#f1f3f6}
 .product-name{font-size:14px;font-weight:600}
 .product-price{font-size:16px;font-weight:bold;margin-top:4px}
 
-.pay-option{
-  display:flex;gap:12px;
-  padding:12px;
-  border:2px solid #ddd;
-  border-radius:8px;
-  margin-bottom:10px;
-  cursor:pointer
-}
-.pay-option.selected{
-  border-color:#2874f0;
-  background:#f0f7ff
-}
-.pay-option img{width:28px}
-
 .price-row{
   display:flex;
   justify-content:space-between;
@@ -81,6 +67,11 @@ body{margin:0;background:#f1f3f6}
   font-size:16px;border-radius:4px
 }
 .btn:disabled{background:#ccc}
+.note{
+  font-size:13px;
+  color:#555;
+  margin-top:8px
+}
 </style>
 </head>
 
@@ -98,27 +89,6 @@ body{margin:0;background:#f1f3f6}
 <!-- PRODUCT -->
 <div class="card" id="productCard">Loading...</div>
 
-<!-- PAYMENT -->
-<div class="card">
-  <h4>Select Payment App</h4>
-
-  <div class="pay-option selected" data-method="upi">
-    <img src="assets/images/upi.png"> Any UPI App
-  </div>
-
-  <div class="pay-option" data-method="phonepe">
-    <img src="assets/images/phonepe-logo.webp"> PhonePe
-  </div>
-
-  <div class="pay-option" data-method="gpay">
-    <img src="assets/images/gpay.webp"> Google Pay
-  </div>
-
-  <div class="pay-option" data-method="paytm">
-    <img src="assets/images/paytm.png"> Paytm
-  </div>
-</div>
-
 <!-- PRICE -->
 <div class="card">
   <h4>Price Details</h4>
@@ -126,6 +96,11 @@ body{margin:0;background:#f1f3f6}
   <div class="price-row"><span>Delivery</span><span class="free">FREE</span></div>
   <hr>
   <div class="price-row"><strong>Total</strong><strong id="total">₹--</strong></div>
+
+  <div class="note">
+    You will be redirected to Paytm.<br>
+    Amount will be already filled. Just confirm & pay.
+  </div>
 </div>
 
 <div style="height:90px"></div>
@@ -133,77 +108,106 @@ body{margin:0;background:#f1f3f6}
 <!-- BOTTOM -->
 <div class="bottom-bar">
   <div class="amount" id="bottomAmount">₹--</div>
-  <button class="btn" id="payBtn" disabled>Pay Now</button>
+  <button class="btn" id="orderBtn" disabled>Pay Now</button>
 </div>
 
 <script>
-let productPrice = 399;               // demo amount
-let productName  = "Order Payment";  // note
-let upiId        = "yourupi@bank";   // 🔴 APNA UPI ID DALO
-let selectedMethod = "upi";
+/* ================= CONFIG ================= */
+let productId = "";
+let productName = "";
+let productPrice = 0;
+let upiId = "";
 
-/* LOAD DEMO PRODUCT */
-function loadProduct(){
+const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
+const UPI_API      = "https://flipback-production.up.railway.app/api/upi";
+
+/* =============== HELPERS ================== */
+function getProductId(){
+  return new URLSearchParams(window.location.search).get("id");
+}
+
+/* =============== FETCH UPI ================= */
+fetch(UPI_API)
+  .then(r => r.json())
+  .then(d => {
+    upiId = d?.data?.upi_id || d?.upi_id || "";
+  });
+
+/* =============== LOAD PRODUCT ============== */
+async function loadProduct(){
+  productId = getProductId();
+  if(!productId){
+    alert("Product ID missing");
+    return;
+  }
+
+  const r = await fetch(PRODUCTS_API);
+  const d = await r.json();
+
+  const p = d.data.find(x =>
+    String(x.id) === String(productId) ||
+    String(x._id) === String(productId)
+  );
+
+  if(!p){
+    alert("Product not found");
+    return;
+  }
+
+  productName  = p.name;
+  productPrice = Number(p.discounted_price || p.price || 0);
+  const img    = p.main_image || p.image || "https://via.placeholder.com/80";
+
   productCard.innerHTML = `
     <div class="product-row">
-      <img src="https://via.placeholder.com/80" class="product-img">
+      <img src="${img}" class="product-img"
+           onerror="this.src='https://via.placeholder.com/80'">
       <div>
         <div class="product-name">${productName}</div>
         <div class="product-price">₹${productPrice}</div>
       </div>
     </div>
   `;
-  price.innerText = total.innerText = bottomAmount.innerText = "₹"+productPrice;
-  payBtn.disabled = false;
+
+  price.innerText =
+  total.innerText =
+  bottomAmount.innerText = "₹" + productPrice;
+
+  orderBtn.disabled = false;
 }
 
-/* PAYMENT OPEN */
-function openUPI(){
-  if(!upiId || productPrice<=0){
-    alert("UPI unavailable");
+/* ========== PAYTM USER-INITIATED FLOW ========= */
+function openPaytmUserFlow(){
+  if(!upiId || productPrice <= 0){
+    alert("Payment unavailable");
     return;
   }
 
-  const amt  = productPrice.toString();
-  const note = encodeURIComponent(productName);
+  /*
+    IMPORTANT:
+    ❌ NO upi://pay
+    ❌ NO paytmmp://pay
+    ✅ ONLY internal Paytm transfer screen
+  */
 
-  let url = "";
+  const amount = productPrice;
 
-  if(selectedMethod === "phonepe"){
-    url = `phonepe://upi/pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
-  }
-  else if(selectedMethod === "gpay"){
-    url = `tez://upi/pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
-  }
-  else if(selectedMethod === "paytm"){
-    url = `paytmmp://upi/pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
-  }
-  else{
-    // 🔥 MOST IMPORTANT (generic user-like payment)
-    url = `upi://pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
-  }
+  // Paytm internal send-money screen (user initiated)
+  const paytmUrl =
+    `paytmmp://cash_wallet?featuretype=sendmoney&amount=${amount}`;
 
-  window.location.href = url;
+  window.location.href = paytmUrl;
 
-  // OPTIONAL success redirect
-  setTimeout(()=>{
-    if(confirm("Payment completed?")) {
-      window.location.href = "thankyou.html";
+  // Optional confirmation screen
+  setTimeout(() => {
+    if(confirm("Payment completed in Paytm?")){
+      window.location.href = `thankyou.html?id=${productId}`;
     }
-  },3000);
+  }, 4000);
 }
 
-/* PAYMENT SELECT */
-document.querySelectorAll(".pay-option").forEach(p=>{
-  p.onclick = ()=>{
-    document.querySelectorAll(".pay-option")
-      .forEach(x=>x.classList.remove("selected"));
-    p.classList.add("selected");
-    selectedMethod = p.dataset.method;
-  };
-});
-
-payBtn.onclick = openUPI;
+/* =============== INIT ================= */
+orderBtn.onclick = openPaytmUserFlow;
 loadProduct();
 </script>
 
