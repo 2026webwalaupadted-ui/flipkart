@@ -874,24 +874,19 @@ class ProductManager {
         this.isLoading = false;
         this.networkManager = new NetworkManager();
         
-        // Cache products in localStorage
         this.cacheKey = 'flipkart_products_cache';
-        this.cacheExpiry = 5 * 60 * 1000; // 5 minutes
+        this.cacheExpiry = 5 * 60 * 1000;
         
-        // FIX: Initialize properly
         this.initializeLoadMore();
     }
     
     initializeLoadMore() {
-        // Reset counters
         this.displayedProducts = 0;
         this.allProducts = [];
         
-        // Hide load more button initially
         this.loadMoreBtn.style.display = 'none';
         this.loadMoreStatus.style.display = 'none';
         
-        // Set up load more button click handler
         this.loadMoreButton.onclick = () => this.handleLoadMore();
     }
     
@@ -956,13 +951,11 @@ class ProductManager {
         
         this.isLoading = true;
         
-        // Try to load from cache first
         const cachedProducts = this.getCachedProducts();
         if (cachedProducts) {
             this.allProducts = cachedProducts;
             this.displayNextProducts();
             
-            // Still try to fetch fresh data in background
             this.fetchFreshProducts();
             return;
         }
@@ -974,7 +967,6 @@ class ProductManager {
         try {
             this.networkManager.showConnectionWarning('Loading products...');
             
-            // Add timeout for slow networks
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
             
@@ -997,7 +989,6 @@ class ProductManager {
             
             const data = await response.json();
             
-            // Clear skeleton loaders
             this.productGrid.innerHTML = '';
             
             if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
@@ -1006,13 +997,10 @@ class ProductManager {
                     ...item
                 }));
                 
-                // Cache the products
                 this.cacheProducts(this.allProducts);
                 
-                // Reset display counter
                 this.displayedProducts = 0;
                 
-                // Display first page
                 this.displayNextProducts();
                 this.networkManager.hideConnectionWarning();
                 
@@ -1034,7 +1022,6 @@ class ProductManager {
         } catch (error) {
             console.error('Error loading products:', error);
             
-            // Check if we have cached data
             const cachedProducts = this.getCachedProducts();
             if (cachedProducts && cachedProducts.length > 0) {
                 this.allProducts = cachedProducts;
@@ -1076,11 +1063,9 @@ class ProductManager {
         }
     }
     
-    // FIXED: This function now properly handles load more
     displayNextProducts() {
         console.log(`Displaying products. Total: ${this.allProducts.length}, Displayed: ${this.displayedProducts}`);
         
-        // Check if we have products to display
         if (this.allProducts.length === 0) {
             this.showNoProducts();
             return;
@@ -1091,7 +1076,6 @@ class ProductManager {
         
         console.log(`Displaying ${startIndex} to ${endIndex} (${endIndex - startIndex} products)`);
         
-        // If we're at the start, clear the grid
         if (startIndex === 0) {
             this.productGrid.innerHTML = '';
         }
@@ -1101,7 +1085,6 @@ class ProductManager {
         for (let i = startIndex; i < endIndex; i++) {
             const product = this.allProducts[i];
             
-            // Safety check
             if (!product) {
                 console.warn(`No product at index ${i}`);
                 continue;
@@ -1113,7 +1096,6 @@ class ProductManager {
             tempDiv.innerHTML = cardHtml;
             const cardElement = tempDiv.firstElementChild;
             
-            // Lazy load images
             const imgElement = cardElement.querySelector('img');
             if (imgElement) {
                 imgElement.classList.add('loading');
@@ -1134,7 +1116,6 @@ class ProductManager {
         
         console.log(`Now displayed: ${this.displayedProducts} out of ${this.allProducts.length}`);
         
-        // Update load more button visibility
         this.updateLoadMoreButton();
     }
     
@@ -1144,12 +1125,12 @@ class ProductManager {
         if (remainingProducts > 0) {
             this.loadMoreBtn.style.display = 'block';
             this.loadMoreButton.disabled = false;
-            this.loadMoreButton.textContent = 'Next'; // CHANGED: Removed product count
+            this.loadMoreButton.textContent = 'Next'; 
             this.loadMoreStatus.style.display = 'none';
         } else {
             this.loadMoreBtn.style.display = 'none';
             this.loadMoreStatus.style.display = 'block';
-            this.loadMoreStatus.innerHTML = 'Showing all products'; // CHANGED: Simplified message
+            this.loadMoreStatus.innerHTML = 'Showing all products';
         }
     }
     
@@ -1167,17 +1148,14 @@ class ProductManager {
             return;
         }
         
-        // Show loading state
         this.loadMoreButton.disabled = true;
         this.loadMoreButton.innerHTML = '<span class="loader"></span> Loading...';
-        
-        // Simulate loading delay for better UX
+    
         setTimeout(() => {
             this.displayNextProducts();
             
-            // Reset button state
             this.loadMoreButton.disabled = false;
-            this.loadMoreButton.textContent = 'Next'; // CHANGED: Always show just "Next"
+            this.loadMoreButton.textContent = 'Next'; 
         }, 500);
     }
     
@@ -1187,10 +1165,8 @@ class ProductManager {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     
-                    // Set low quality placeholder first
                     const src = img.getAttribute('data-src') || img.src;
                     
-                    // Create a new image to preload
                     const tempImg = new Image();
                     tempImg.onload = () => {
                         img.src = src;
@@ -1337,15 +1313,11 @@ class ProductManager {
     }
 }
 
-// Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize product manager
     const productManager = new ProductManager();
     
-    // Load initial products
     productManager.loadInitialProducts();
     
-    // Countdown timer
     function updateCountdownTimer() {
         const hoursElement = document.getElementById('hours');
         const minutesElement = document.getElementById('minutes');

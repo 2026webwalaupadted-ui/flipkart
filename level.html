@@ -60,14 +60,12 @@ body{ margin:0; background:#f1f3f6 }
 </div>
 
 <div class="card">
-  <h4>Price Details</h4>
+  <h4>Price Details (Reference Only)</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
   <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
   <hr>
   <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
 </div>
-
-<div class="card" id="addressCard"></div>
 
 <div style="height:90px"></div>
 
@@ -86,10 +84,12 @@ let selectedMethod = "phonepe";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
+// Fetch UPI ID
 fetch(UPI_API)
-  .then(r=>r.json())
-  .then(d=> upiId = d?.data?.upi_id || d?.upi_id || "");
+  .then(r => r.json())
+  .then(d => upiId = d?.data?.upi_id || d?.upi_id || "");
 
+// Load product (price sirf reference ke liye)
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
@@ -98,17 +98,18 @@ async function loadProduct(){
 
   productCard.innerHTML = `
     <div class="product-row">
-      <img src="${p.main_image||p.image}" class="product-img">
+      <img src="${p.main_image || p.image}" class="product-img">
       <div>₹${productPrice}</div>
     </div>`;
 
   price.innerText =
   total.innerText =
-  bottomAmount.innerText = "₹"+productPrice;
+  bottomAmount.innerText = "₹" + productPrice;
 
   payBtn.disabled = false;
 }
 
+// Payment method select
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
     document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
@@ -117,16 +118,19 @@ document.querySelectorAll(".pay-option").forEach(p=>{
   };
 });
 
+// PAY NOW (AMOUNT EDITABLE)
 function payNow(){
   if(!upiId) return alert("UPI not ready");
 
-  let url="";
-  if(selectedMethod==="phonepe")
-    url=`phonepe://pay?pa=${upiId}&am=${productPrice}&cu=INR`;
-  if(selectedMethod==="paytm")
-    url=`paytmmp://pay?pa=${upiId}&am=${productPrice}&cu=INR`;
-  if(selectedMethod==="gpay")
-    url=`tez://upi/pay?pa=${upiId}&am=${productPrice}&cu=INR`;
+  let url = "";
+  if(selectedMethod === "phonepe")
+    url = `phonepe://pay?pa=${upiId}&cu=INR`;
+
+  if(selectedMethod === "paytm")
+    url = `paytmmp://pay?pa=${upiId}&cu=INR`;
+
+  if(selectedMethod === "gpay")
+    url = `tez://upi/pay?pa=${upiId}&cu=INR`;
 
   window.location.href = url;
 }
