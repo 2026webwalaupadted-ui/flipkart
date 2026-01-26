@@ -4,125 +4,83 @@
 <meta charset="UTF-8">
 <title>Payments</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-*{ box-sizing:border-box; font-family:Arial,sans-serif }
-body{ margin:0; background:#f1f3f6 }
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f1f3f6}
 
-.header{ position:fixed; top:0; left:0; width:100%; background:#fff; z-index:1000; box-shadow:0 2px 4px rgba(0,0,0,.12)}
-.header-top{ padding:12px 16px; display:flex; gap:12px; align-items:center; border-bottom:1px solid #eee }
-.back-arrow{ width:10px; height:10px; border-left:2px solid #000; border-bottom:2px solid #000; transform:rotate(45deg); cursor:pointer }
-.header img{ width:100%; display:block }
-.header-space{ height:120px }
+.header{
+  position:fixed;top:0;left:0;width:100%;
+  background:#fff;z-index:10;
+  box-shadow:0 2px 4px rgba(0,0,0,.12)
+}
+.header-top{
+  padding:12px 16px;
+  display:flex;gap:12px;
+  border-bottom:1px solid #eee
+}
+.back-arrow{
+  width:10px;height:10px;
+  border-left:2px solid #000;
+  border-bottom:2px solid #000;
+  transform:rotate(45deg);
+  cursor:pointer
+}
+.header-space{height:70px}
 
-.card{ background:#fff; border-radius:8px; margin:8px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card{
+  background:#fff;
+  border-radius:8px;
+  margin:10px;
+  padding:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.1)
+}
 
-.product-row{ display:flex; gap:12px; align-items:center }
+.product-row{display:flex;gap:12px}
 .product-img{
-  width:70px;
-  height:70px;
+  width:70px;height:70px;
   object-fit:contain;
   border:1px solid #eee;
-  border-radius:6px;
-  padding:5px;
+  border-radius:6px;padding:5px
 }
-.product-name{ font-size:14px; font-weight:600 }
-.product-price{ font-size:16px; font-weight:bold; margin-top:4px }
+.product-name{font-size:14px;font-weight:600}
+.product-price{font-size:16px;font-weight:bold;margin-top:4px}
 
-.pay-option{ display:flex; gap:12px; align-items:center; padding:12px; border:2px solid #ddd; border-radius:8px; margin-bottom:10px; cursor:pointer }
-.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
-.pay-option img{ width:28px; height:28px; object-fit:contain }
-
-.price-row{ display:flex; justify-content:space-between; margin:8px 0; font-size:14px }
-.free{ color:#388e3c; font-weight:600 }
-
-.bottom-bar{ position:fixed; bottom:0; left:0; width:100%; background:#fff; padding:12px 16px; display:flex; justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.1)}
-.amount{ font-size:18px; font-weight:bold }
-.btn{ background:#fb641b; color:#fff; border:none; padding:12px 24px; font-size:16px; border-radius:4px; cursor:pointer }
-.btn:disabled{ background:#ccc; cursor:not-allowed }
-
-/* SIMPLE MODAL STYLES */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  z-index: 2000;
-  display: none;
-  justify-content: center;
-  align-items: center;
+.pay-option{
+  display:flex;gap:12px;
+  padding:12px;
+  border:2px solid #ddd;
+  border-radius:8px;
+  margin-bottom:10px;
+  cursor:pointer
 }
-
-.modal-content {
-  background: white;
-  width: 90%;
-  max-width: 350px;
-  border-radius: 12px;
-  padding: 25px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+.pay-option.selected{
+  border-color:#2874f0;
+  background:#f0f7ff
 }
+.pay-option img{width:28px}
 
-.success-check {
-  color: #388e3c;
-  font-size: 48px;
-  margin: 15px 0;
+.price-row{
+  display:flex;
+  justify-content:space-between;
+  margin:8px 0;font-size:14px
 }
+.free{color:#388e3c;font-weight:600}
 
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 25px;
+.bottom-bar{
+  position:fixed;bottom:0;left:0;width:100%;
+  background:#fff;
+  padding:12px 16px;
+  display:flex;justify-content:space-between;
+  box-shadow:0 -1px 3px rgba(0,0,0,.1)
 }
-
-.secondary-btn {
-  flex: 1;
-  background: #f1f3f6;
-  color: #333;
-  border: 1px solid #ddd;
-  padding: 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
+.amount{font-size:18px;font-weight:bold}
+.btn{
+  background:#fb641b;color:#fff;
+  border:none;padding:12px 24px;
+  font-size:16px;border-radius:4px
 }
-
-.primary-btn {
-  flex: 1;
-  background: #2874f0;
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.countdown {
-  font-size: 14px;
-  color: #666;
-  margin: 15px 0;
-  font-weight: bold;
-}
-
-.loading-spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #2874f0;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+.btn:disabled{background:#ccc}
 </style>
 </head>
 
@@ -134,7 +92,6 @@ body{ margin:0; background:#f1f3f6 }
     <div class="back-arrow" onclick="history.back()"></div>
     <strong>Payments</strong>
   </div>
-  <img src="assets/images/head.jpg" alt="Flipkart Header">
 </div>
 <div class="header-space"></div>
 
@@ -143,15 +100,22 @@ body{ margin:0; background:#f1f3f6 }
 
 <!-- PAYMENT -->
 <div class="card">
-  <h4>Select Payment Method</h4>
-  <div class="pay-option selected" data-method="phonepe">
-    <img src="assets/images/phonepe-logo.webp" alt="PhonePe"> PhonePe
+  <h4>Select Payment App</h4>
+
+  <div class="pay-option selected" data-method="upi">
+    <img src="assets/images/upi.png"> Any UPI App
   </div>
-  <div class="pay-option" data-method="paytm">
-    <img src="assets/images/paytm.png" alt="Paytm"> Paytm
+
+  <div class="pay-option" data-method="phonepe">
+    <img src="assets/images/phonepe-logo.webp"> PhonePe
   </div>
+
   <div class="pay-option" data-method="gpay">
-    <img src="assets/images/gpay.webp" alt="Google Pay"> Google Pay
+    <img src="assets/images/gpay.webp"> Google Pay
+  </div>
+
+  <div class="pay-option" data-method="paytm">
+    <img src="assets/images/paytm.png"> Paytm
   </div>
 </div>
 
@@ -164,266 +128,83 @@ body{ margin:0; background:#f1f3f6 }
   <div class="price-row"><strong>Total</strong><strong id="total">₹--</strong></div>
 </div>
 
-<!-- ADDRESS -->
-<div class="card" id="addressCard">Loading address...</div>
-
 <div style="height:90px"></div>
 
 <!-- BOTTOM -->
 <div class="bottom-bar">
   <div class="amount" id="bottomAmount">₹--</div>
-  <button class="btn" id="orderBtn" disabled>Pay Now</button>
-</div>
-
-<!-- CONFIRMATION MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-content" id="modalContent">
-    <!-- Content filled by JS -->
-  </div>
+  <button class="btn" id="payBtn" disabled>Pay Now</button>
 </div>
 
 <script>
-let productId="", productName="", productPrice=0;
-let upiId="", selectedMethod="phonepe";
-let countdownInterval;
+let productPrice = 399;               // demo amount
+let productName  = "Order Payment";  // note
+let upiId        = "yourupi@bank";   // 🔴 APNA UPI ID DALO
+let selectedMethod = "upi";
 
-const PRODUCTS_API="https://flipback-production.up.railway.app/api/products";
-const UPI_API="https://flipback-production.up.railway.app/api/upi";
-
-/* GET PRODUCT ID */
-function getProductId(){
-  return new URLSearchParams(window.location.search).get("id");
-}
-
-/* LOAD UPI ID */
-async function loadUPI(){
-  try {
-    const response = await fetch(UPI_API);
-    const data = await response.json();
-    upiId = data?.data?.upi_id || data?.upi_id || "test@upi";
-  } catch (error) {
-    upiId = "test@upi";
-  }
-}
-
-/* LOAD PRODUCT */
-async function loadProduct(){
-  productId = getProductId();
-  if(!productId){ 
-    alert("Product ID missing"); 
-    return; 
-  }
-
-  try {
-    const response = await fetch(PRODUCTS_API);
-    const data = await response.json();
-
-    const product = data.data.find(x =>
-      String(x.id) === String(productId) || String(x._id) === String(productId)
-    );
-
-    if(!product){ 
-      alert("Product not found"); 
-      return; 
-    }
-
-    productName = product.name;
-    productPrice = Number(product.discounted_price || product.price || 0);
-    const img = product.main_image || product.image || "https://via.placeholder.com/80";
-
-    document.getElementById('productCard').innerHTML = `
-      <div class="product-row">
-        <img src="${img}" class="product-img" alt="${productName}" onerror="this.src='https://via.placeholder.com/80'">
-        <div>
-          <div class="product-name">${productName}</div>
-          <div class="product-price">₹${productPrice}</div>
-        </div>
+/* LOAD DEMO PRODUCT */
+function loadProduct(){
+  productCard.innerHTML = `
+    <div class="product-row">
+      <img src="https://via.placeholder.com/80" class="product-img">
+      <div>
+        <div class="product-name">${productName}</div>
+        <div class="product-price">₹${productPrice}</div>
       </div>
-    `;
+    </div>
+  `;
+  price.innerText = total.innerText = bottomAmount.innerText = "₹"+productPrice;
+  payBtn.disabled = false;
+}
 
-    document.getElementById('price').innerText = 
-    document.getElementById('total').innerText = 
-    document.getElementById('bottomAmount').innerText = "₹" + productPrice;
-    
-    document.getElementById('orderBtn').disabled = false;
-  } catch (error) {
-    alert("Failed to load product details");
+/* PAYMENT OPEN */
+function openUPI(){
+  if(!upiId || productPrice<=0){
+    alert("UPI unavailable");
+    return;
   }
-}
 
-/* LOAD ADDRESS */
-function loadAddress(){
-  const address = JSON.parse(localStorage.getItem("userAddress") || "null");
-  document.getElementById('addressCard').innerHTML = address ? `
-    <b>${address.name}</b><br>${address.house}, ${address.city}<br>${address.phone}
-  ` : "No address found";
-}
+  const amt  = productPrice.toString();
+  const note = encodeURIComponent(productName);
 
-/* SHOW CONFIRMATION MODAL */
-function showConfirmationModal(){
-  const modal = document.getElementById('confirmModal');
-  const appNames = {
-    phonepe: "PhonePe",
-    gpay: "Google Pay",
-    paytm: "Paytm"
-  };
-  
-  const appName = appNames[selectedMethod];
-  
-  document.getElementById('modalContent').innerHTML = `
-    <div style="margin-bottom: 20px;">
-      <i class="fas fa-external-link-alt" style="font-size: 40px; color: #2874f0;"></i>
-    </div>
-    <h3 style="margin: 0 0 10px 0;">Open ${appName}</h3>
-    <p style="color: #666; margin-bottom: 20px;">
-      Click "Open App" to complete payment in ${appName}
-    </p>
-    <div class="countdown" id="countdown">Opening in 3 seconds...</div>
-    <div class="action-buttons">
-      <button class="secondary-btn" onclick="closeModal()">Cancel</button>
-      <button class="primary-btn" onclick="openUPIAppNow()">Open App Now</button>
-    </div>
-  `;
-  
-  modal.style.display = 'flex';
-  
-  // Start countdown
-  let count = 3;
-  const countdownEl = document.getElementById('countdown');
-  countdownInterval = setInterval(() => {
-    count--;
-    if(count > 0) {
-      countdownEl.textContent = `Opening in ${count} second${count > 1 ? 's' : ''}...`;
-    } else {
-      clearInterval(countdownInterval);
-      openUPIAppNow();
-    }
-  }, 1000);
-}
-
-/* CLOSE MODAL */
-function closeModal(){
-  document.getElementById('confirmModal').style.display = 'none';
-  if(countdownInterval) clearInterval(countdownInterval);
-}
-
-/* OPEN UPI APP IMMEDIATELY */
-function openUPIAppNow(){
-  if(countdownInterval) clearInterval(countdownInterval);
-  
-  // Show loading briefly
-  document.getElementById('modalContent').innerHTML = `
-    <div style="margin: 30px 0;">
-      <div class="loading-spinner"></div>
-      <p style="margin-top: 20px;">Opening payment app...</p>
-    </div>
-  `;
-  
-  // Generate UPI link
-  const amt = productPrice.toString();
-  const note = encodeURIComponent(productName.substring(0,30));
-  const txn = "TXN" + Date.now();
-  
   let url = "";
-  if(selectedMethod === "phonepe") {
-    url = `phonepe://pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txn}`;
-  } else if(selectedMethod === "gpay") {
-    url = `tez://upi/pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txn}`;
-  } else {
-    url = `paytmmp://pay?pa=${upiId}&pn=Flipkart&am=${amt}&cu=INR&tn=${note}&tr=${txn}`;
+
+  if(selectedMethod === "phonepe"){
+    url = `phonepe://upi/pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
   }
-  
-  // Close modal and open UPI app after brief delay
-  setTimeout(() => {
-    document.getElementById('confirmModal').style.display = 'none';
-    window.location.href = url;
-    
-    // Check payment status after 3 seconds
-    setTimeout(() => {
-      checkPaymentStatus();
-    }, 3000);
-  }, 800);
-}
+  else if(selectedMethod === "gpay"){
+    url = `tez://upi/pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
+  }
+  else if(selectedMethod === "paytm"){
+    url = `paytmmp://upi/pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
+  }
+  else{
+    // 🔥 MOST IMPORTANT (generic user-like payment)
+    url = `upi://pay?pa=${upiId}&am=${amt}&cu=INR&tn=${note}`;
+  }
 
-/* CHECK PAYMENT STATUS */
-function checkPaymentStatus(){
-  const modal = document.getElementById('confirmModal');
-  
-  document.getElementById('modalContent').innerHTML = `
-    <div style="margin-bottom: 20px;">
-      <div class="success-check">
-        <i class="fas fa-question-circle" style="color: #ff9800;"></i>
-      </div>
-    </div>
-    <h3 style="margin: 0 0 10px 0;">Payment Status</h3>
-    <p style="color: #666; margin-bottom: 20px;">
-      Did you complete the payment?
-    </p>
-    <div class="action-buttons">
-      <button class="secondary-btn" onclick="closeModal()">No, Try Again</button>
-      <button class="primary-btn" onclick="paymentSuccess()">Yes, Payment Done</button>
-    </div>
-    <p style="font-size: 12px; color: #999; margin-top: 15px;">
-      Check your UPI app for payment confirmation
-    </p>
-  `;
-  
-  modal.style.display = 'flex';
-}
+  window.location.href = url;
 
-/* PAYMENT SUCCESS */
-function paymentSuccess(){
-  document.getElementById('modalContent').innerHTML = `
-    <div style="margin-bottom: 20px;">
-      <div class="success-check">
-        <i class="fas fa-check-circle"></i>
-      </div>
-    </div>
-    <h3 style="margin: 0 0 10px 0; color: #388e3c;">Payment Successful!</h3>
-    <p style="color: #666; margin-bottom: 25px;">
-      Redirecting to order confirmation...
-    </p>
-    <div class="loading-spinner" style="border-top-color: #388e3c;"></div>
-  `;
-  
-  // Redirect after 2 seconds
-  setTimeout(() => {
-    window.location.href = `thankyou.html?id=${productId}`;
-  }, 2000);
-}
-
-/* INITIALIZE PAGE */
-document.addEventListener('DOMContentLoaded', function() {
-  // Load UPI ID
-  loadUPI();
-  
-  // Load product and address
-  loadProduct();
-  loadAddress();
-  
-  // Payment method selection
-  document.querySelectorAll(".pay-option").forEach(p => {
-    p.onclick = () => {
-      document.querySelectorAll(".pay-option").forEach(x => x.classList.remove("selected"));
-      p.classList.add("selected");
-      selectedMethod = p.dataset.method;
-    };
-  });
-  
-  // Order button click - shows confirmation modal first
-  document.getElementById('orderBtn').onclick = showConfirmationModal;
-  
-  // When user returns to the page (from UPI app), show payment status check
-  document.addEventListener('visibilitychange', function() {
-    if(document.visibilityState === 'visible') {
-      const modal = document.getElementById('confirmModal');
-      if(modal.style.display === 'flex') {
-        // If modal is open when user returns, check payment status
-        setTimeout(checkPaymentStatus, 500);
-      }
+  // OPTIONAL success redirect
+  setTimeout(()=>{
+    if(confirm("Payment completed?")) {
+      window.location.href = "thankyou.html";
     }
-  });
+  },3000);
+}
+
+/* PAYMENT SELECT */
+document.querySelectorAll(".pay-option").forEach(p=>{
+  p.onclick = ()=>{
+    document.querySelectorAll(".pay-option")
+      .forEach(x=>x.classList.remove("selected"));
+    p.classList.add("selected");
+    selectedMethod = p.dataset.method;
+  };
 });
+
+payBtn.onclick = openUPI;
+loadProduct();
 </script>
 
 </body>
