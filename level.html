@@ -6,72 +6,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
-body{margin:0;background:#f1f3f6}
+*{ box-sizing:border-box; font-family:Arial,sans-serif }
+body{ margin:0; background:#f1f3f6 }
 
-.header{
-  position:fixed;top:0;left:0;width:100%;
-  background:#fff;z-index:10;
-  box-shadow:0 2px 4px rgba(0,0,0,.12)
-}
-.header-top{
-  padding:12px 16px;
-  display:flex;gap:12px;
-  border-bottom:1px solid #eee
-}
-.back-arrow{
-  width:10px;height:10px;
-  border-left:2px solid #000;
-  border-bottom:2px solid #000;
-  transform:rotate(45deg);
-  cursor:pointer
-}
-.header-space{height:70px}
+/* HEADER */
+.header{ position:fixed; top:0; left:0; width:100%; background:#fff; z-index:1000;
+  box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.header-top{ padding:12px 16px; display:flex; gap:12px; border-bottom:1px solid #eee }
+.back-arrow{ width:10px; height:10px; border-left:2px solid #000;
+  border-bottom:2px solid #000; transform:rotate(45deg); cursor:pointer }
+.header-space{ height:70px }
 
-.card{
-  background:#fff;
-  border-radius:8px;
-  margin:10px;
-  padding:12px;
-  box-shadow:0 1px 3px rgba(0,0,0,.1)
+/* CARD */
+.card{ background:#fff; border-radius:8px; margin:8px; padding:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* PRODUCT */
+.product-row{ display:flex; gap:12px; align-items:center }
+.product-img{ width:70px; height:70px; border:1px solid #eee;
+  border-radius:6px; object-fit:contain }
+
+/* PAYMENT OPTIONS */
+.pay-option{
+  display:flex; align-items:center; gap:12px;
+  padding:12px; border:2px solid #ddd;
+  border-radius:8px; margin-bottom:10px;
+  cursor:pointer;
+}
+.pay-option img{ width:28px }
+.pay-option.selected{
+  border-color:#2874f0;
+  background:#f0f7ff;
 }
 
-.product-row{display:flex;gap:12px}
-.product-img{
-  width:70px;height:70px;
-  object-fit:contain;
-  border:1px solid #eee;
-  border-radius:6px;padding:5px
-}
-.product-name{font-size:14px;font-weight:600}
-.product-price{font-size:16px;font-weight:bold;margin-top:4px}
+/* PRICE */
+.price-row{ display:flex; justify-content:space-between; margin:6px 0 }
 
-.price-row{
-  display:flex;
-  justify-content:space-between;
-  margin:8px 0;font-size:14px
-}
-.free{color:#388e3c;font-weight:600}
-
+/* BOTTOM BAR */
 .bottom-bar{
-  position:fixed;bottom:0;left:0;width:100%;
-  background:#fff;
-  padding:12px 16px;
-  display:flex;justify-content:space-between;
-  box-shadow:0 -1px 3px rgba(0,0,0,.1)
+  position:fixed; bottom:0; left:0; width:100%;
+  background:#fff; padding:12px;
+  display:flex; justify-content:space-between;
+  box-shadow:0 -1px 3px rgba(0,0,0,.15)
 }
-.amount{font-size:18px;font-weight:bold}
 .btn{
-  background:#fb641b;color:#fff;
-  border:none;padding:12px 24px;
-  font-size:16px;border-radius:4px
+  background:#fb641b; color:#fff; border:none;
+  padding:12px 22px; font-size:16px; border-radius:4px
 }
-.btn:disabled{background:#ccc}
-.note{
-  font-size:13px;
-  color:#555;
-  margin-top:8px
-}
+.btn:disabled{ background:#ccc }
 </style>
 </head>
 
@@ -87,127 +69,141 @@ body{margin:0;background:#f1f3f6}
 <div class="header-space"></div>
 
 <!-- PRODUCT -->
-<div class="card" id="productCard">Loading...</div>
+<div class="card" id="productCard">Loading product...</div>
+
+<!-- PAYMENT OPTIONS (UI SAME) -->
+<div class="card">
+  <h4>Select Payment Method</h4>
+
+  <div class="pay-option selected" data-method="phonepe">
+    <img src="assets/images/phonepe-logo.webp"> PhonePe
+  </div>
+
+  <div class="pay-option" data-method="paytm">
+    <img src="assets/images/paytm.png"> Paytm
+  </div>
+
+  <div class="pay-option" data-method="gpay">
+    <img src="assets/images/gpay.webp"> Google Pay
+  </div>
+</div>
 
 <!-- PRICE -->
 <div class="card">
   <h4>Price Details</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
-  <div class="price-row"><span>Delivery</span><span class="free">FREE</span></div>
+  <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
   <hr>
-  <div class="price-row"><strong>Total</strong><strong id="total">₹--</strong></div>
-
-  <div class="note">
-    You will be redirected to Paytm.<br>
-    Amount will be already filled. Just confirm & pay.
-  </div>
+  <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
 </div>
+
+<!-- ADDRESS -->
+<div class="card" id="addressCard">Loading address...</div>
 
 <div style="height:90px"></div>
 
 <!-- BOTTOM -->
 <div class="bottom-bar">
-  <div class="amount" id="bottomAmount">₹--</div>
-  <button class="btn" id="orderBtn" disabled>Pay Now</button>
+  <b id="bottomAmount">₹--</b>
+  <button class="btn" id="payBtn" disabled>Pay via UPI</button>
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-let productId = "";
-let productName = "";
-let productPrice = 0;
-let upiId = "";
-
+/* ================= API ================= */
 const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
 const UPI_API      = "https://flipback-production.up.railway.app/api/upi";
 
-/* =============== HELPERS ================== */
-function getProductId(){
-  return new URLSearchParams(window.location.search).get("id");
-}
+/* ================= STATE ================= */
+let productId="", productName="", productPrice=0;
+let upiId="";
+let selectedMethod="phonepe"; // UI only
 
-/* =============== FETCH UPI ================= */
+/* ================= HELPERS ================= */
+const qs = k => new URLSearchParams(location.search).get(k);
+
+/* ================= FETCH UPI ================= */
 fetch(UPI_API)
-  .then(r => r.json())
-  .then(d => {
+  .then(r=>r.json())
+  .then(d=>{
     upiId = d?.data?.upi_id || d?.upi_id || "";
-  });
+    if(!upiId) alert("UPI ID API se nahi aayi");
+  })
+  .catch(()=>alert("UPI API failed"));
 
-/* =============== LOAD PRODUCT ============== */
+/* ================= LOAD PRODUCT ================= */
 async function loadProduct(){
-  productId = getProductId();
-  if(!productId){
-    alert("Product ID missing");
-    return;
-  }
+  productId = qs("id");
+  if(!productId){ alert("Product ID missing"); return; }
 
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
 
   const p = d.data.find(x =>
-    String(x.id) === String(productId) ||
-    String(x._id) === String(productId)
+    String(x.id)===String(productId) ||
+    String(x._id)===String(productId)
   );
-
-  if(!p){
-    alert("Product not found");
-    return;
-  }
+  if(!p){ alert("Product not found"); return; }
 
   productName  = p.name;
   productPrice = Number(p.discounted_price || p.price || 0);
-  const img    = p.main_image || p.image || "https://via.placeholder.com/80";
 
   productCard.innerHTML = `
     <div class="product-row">
-      <img src="${img}" class="product-img"
-           onerror="this.src='https://via.placeholder.com/80'">
+      <img src="${p.main_image||p.image}" class="product-img">
       <div>
-        <div class="product-name">${productName}</div>
-        <div class="product-price">₹${productPrice}</div>
+        <b>${productName}</b><br>
+        ₹${productPrice}
       </div>
     </div>
   `;
 
   price.innerText =
   total.innerText =
-  bottomAmount.innerText = "₹" + productPrice;
+  bottomAmount.innerText = "₹"+productPrice;
 
-  orderBtn.disabled = false;
+  payBtn.disabled = false;
 }
 
-/* ========== PAYTM USER-INITIATED FLOW ========= */
-function openPaytmUserFlow(){
-  if(!upiId || productPrice <= 0){
-    alert("Payment unavailable");
-    return;
-  }
+/* ================= ADDRESS ================= */
+const addr = JSON.parse(localStorage.getItem("userAddress")||"null");
+addressCard.innerHTML = addr
+ ? `<b>${addr.name}</b><br>${addr.house}, ${addr.city}<br>${addr.phone}`
+ : "No address found";
 
-  /*
-    IMPORTANT:
-    ❌ NO upi://pay
-    ❌ NO paytmmp://pay
-    ✅ ONLY internal Paytm transfer screen
-  */
+/* ================= PAYMENT OPTION UI ================= */
+document.querySelectorAll(".pay-option").forEach(p=>{
+  p.onclick = ()=>{
+    document.querySelectorAll(".pay-option")
+      .forEach(x=>x.classList.remove("selected"));
+    p.classList.add("selected");
+    selectedMethod = p.dataset.method; // sirf UI ke liye
+  };
+});
 
-  const amount = productPrice;
+/* ================= UNIVERSAL UPI LOGIC ================= */
+function payNow(){
+  if(!upiId){ alert("UPI ready nahi hai"); return; }
 
-  // Paytm internal send-money screen (user initiated)
-  const paytmUrl =
-    `paytmmp://cash_wallet?featuretype=sendmoney&amount=${amount}`;
+  const txn  = "TXN" + Date.now();
+  const note = encodeURIComponent(productName.slice(0,30));
 
-  window.location.href = paytmUrl;
+  // 🔥 SAME FOR PHONEPE / PAYTM / GPAY
+  const upiURL =
+    `upi://pay?pa=${upiId}`+
+    `&pn=Flipkart`+
+    `&am=${productPrice}`+
+    `&cu=INR`+
+    `&tn=${note}`+
+    `&tr=${txn}`;
 
-  // Optional confirmation screen
-  setTimeout(() => {
-    if(confirm("Payment completed in Paytm?")){
-      window.location.href = `thankyou.html?id=${productId}`;
-    }
-  }, 4000);
+  window.location.href = upiURL;
+
+  setTimeout(()=>{
+    alert("Payment ke baad status check karo");
+  },4000);
 }
 
-/* =============== INIT ================= */
-orderBtn.onclick = openPaytmUserFlow;
+payBtn.onclick = payNow;
 loadProduct();
 </script>
 
