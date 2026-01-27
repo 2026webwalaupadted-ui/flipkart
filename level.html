@@ -51,13 +51,8 @@ body{ margin:0; background:#f1f3f6 }
   border:2px solid #ddd;
   border-radius:8px;
   margin-bottom:10px;
-  cursor:pointer
 }
 .pay-option img{ width:28px }
-.pay-option.selected{
-  border-color:#2874f0;
-  background:#f0f7ff
-}
 
 .price-row{
   display:flex;
@@ -102,23 +97,6 @@ body{ margin:0; background:#f1f3f6 }
 <!-- PRODUCT -->
 <div class="card" id="productCard">Loading product...</div>
 
-<!-- PAYMENT OPTIONS -->
-<div class="card">
-  <h4>Select Payment Method</h4>
-
-  <div class="pay-option selected" data-method="phonepe">
-    <img src="assets/images/phonepe-logo.webp"> PhonePe
-  </div>
-
-  <div class="pay-option" data-method="paytm">
-    <img src="assets/images/paytm.png"> Paytm
-  </div>
-
-  <div class="pay-option" data-method="gpay">
-    <img src="assets/images/gpay.webp"> Google Pay
-  </div>
-</div>
-
 <!-- PRICE -->
 <div class="card">
   <h4>Price Details</h4>
@@ -140,12 +118,10 @@ body{ margin:0; background:#f1f3f6 }
 /* ================= CONFIG ================= */
 const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
 const UPI_API = "https://flipback-production.up.railway.app/api/upi";
-const MERCHANT_NAME = "FlipBack Store";
 
 /* ================= VARIABLES ================= */
 let productPrice = 0;
 let upiId = "";
-let selectedMethod = "phonepe";
 
 /* ================= HELPERS ================= */
 const qs = k => new URLSearchParams(location.search).get(k);
@@ -185,17 +161,7 @@ async function loadProduct(){
   payBtn.disabled = false;
 }
 
-/* ================= PAYMENT OPTION SELECT ================= */
-document.querySelectorAll(".pay-option").forEach(p=>{
-  p.onclick = ()=>{
-    document.querySelectorAll(".pay-option")
-      .forEach(x=>x.classList.remove("selected"));
-    p.classList.add("selected");
-    selectedMethod = p.dataset.method;
-  };
-});
-
-/* ================= PAY NOW (FIXED) ================= */
+/* ================= PURE P2P PAY ================= */
 function payNow(){
   if(!upiId){
     alert("UPI not ready");
@@ -204,16 +170,15 @@ function payNow(){
 
   const amount = productPrice;
   const txnId = "TXN" + Date.now();
-  const note = "Order Payment";
 
+  // PURE PERSON TO PERSON PAYMENT
   const upiUrl =
     `upi://pay?` +
     `pa=${upiId}` +
-    `&pn=${encodeURIComponent(MERCHANT_NAME)}` +
     `&am=${amount}` +
     `&cu=INR` +
     `&tr=${txnId}` +
-    `&tn=${encodeURIComponent(note)}`;
+    `&tn=${encodeURIComponent("Payment")}`;
 
   window.location.href = upiUrl;
 }
@@ -223,4 +188,4 @@ loadProduct();
 </script>
 
 </body>
-</html>    
+</html>
