@@ -2,50 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Payments</title>
+<title>Chat-Style Payment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body{
-  margin:0;
-  background:#f1f3f6;
-  font-family:Arial,sans-serif;
-}
-.header{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#fff;
-  padding:14px;
-  box-shadow:0 2px 4px rgba(0,0,0,.12);
-}
-.card{
-  background:#fff;
-  margin:16px;
-  padding:16px;
-  border-radius:8px;
-}
-.bottom{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:#fff;
-  padding:12px;
-  display:flex;
-  justify-content:space-between;
-  box-shadow:0 -2px 4px rgba(0,0,0,.15);
-}
-.pay-btn{
-  background:#fb641b;
-  color:#fff;
-  padding:12px 22px;
-  border-radius:4px;
-  text-decoration:none;
-  font-size:16px;
-}
+body{ margin:0; font-family:Arial,sans-serif; background:#f1f3f6; }
+.header{ position:fixed; top:0; width:100%; background:#fff; padding:14px; box-shadow:0 2px 4px rgba(0,0,0,.12);}
+.card{ background:#fff; margin:16px; padding:16px; border-radius:8px; }
+.bottom{ position:fixed; bottom:0; width:100%; background:#fff; padding:12px; display:flex; justify-content:space-between; box-shadow:0 -2px 4px rgba(0,0,0,.15);}
+.pay-btn{ background:#fb641b; color:#fff; padding:12px 22px; border-radius:4px; text-decoration:none; font-size:16px; }
 </style>
 </head>
-
 <body>
 
 <div class="header"><b>Payments</b></div>
@@ -61,9 +27,9 @@ body{
 <div class="bottom">
   <b>₹469</b>
 
-  <!-- 🔥 PURE DIRECT CLICK (NO JS) -->
+  <!-- 🔥 PERSONAL MOBILE-BASED UPI ID -->
   <a class="pay-btn"
-     href="upi://pay?pa=paytmqr6r16hh@ptys&am=469&cu=INR&tr=TXN469">
+     href="upi://pay?pa=9123456789@okicici&am=469&cu=INR&tr=TXN469">
      Pay via UPI
   </a>
 </div>
