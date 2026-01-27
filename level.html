@@ -15,16 +15,14 @@ body{ margin:0; background:#f1f3f6 }
   box-shadow:0 2px 4px rgba(0,0,0,.12)
 }
 .header-top{
-  padding:12px 16px;
-  display:flex; gap:12px;
+  padding:12px 16px; display:flex; gap:12px;
   border-bottom:1px solid #eee
 }
 .back-arrow{
   width:10px; height:10px;
   border-left:2px solid #000;
   border-bottom:2px solid #000;
-  transform:rotate(45deg);
-  cursor:pointer
+  transform:rotate(45deg); cursor:pointer
 }
 .header-space{ height:70px }
 
@@ -57,20 +55,13 @@ body{ margin:0; background:#f1f3f6 }
   background:#f0f7ff
 }
 
-.price-row{
-  display:flex;
-  justify-content:space-between;
-  margin:6px 0
-}
-
 .bottom-bar{
   position:fixed; bottom:0; left:0;
   width:100%;
   background:#fff;
   padding:12px;
   display:flex;
-  justify-content:space-between;
-  align-items:center;
+  justify-content:flex-end;
   box-shadow:0 -1px 3px rgba(0,0,0,.15)
 }
 
@@ -82,7 +73,6 @@ body{ margin:0; background:#f1f3f6 }
   font-size:16px;
   border-radius:4px
 }
-.btn:disabled{ background:#ccc }
 </style>
 </head>
 
@@ -97,8 +87,11 @@ body{ margin:0; background:#f1f3f6 }
 </div>
 <div class="header-space"></div>
 
-<!-- PRODUCT -->
+<!-- PRODUCT DETAILS -->
 <div class="card" id="productCard">Loading product...</div>
+
+<!-- DELIVERY ADDRESS (JAISA PEHLE THA – NO HARDCODE) -->
+<div class="card" id="addressCard"></div>
 
 <!-- PAYMENT METHOD -->
 <div class="card">
@@ -117,46 +110,35 @@ body{ margin:0; background:#f1f3f6 }
   </div>
 </div>
 
-<!-- PRICE -->
-<div class="card">
-  <h4>Payment Details</h4>
-  <div class="price-row">
-    <span>Amount</span>
-    <span id="price">₹--</span>
-  </div>
-</div>
-
 <div style="height:90px"></div>
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
-  <b id="bottomAmount">₹--</b>
-  <button class="btn" id="payBtn" disabled>Pay Now</button>
+  <button class="btn" id="payBtn">Pay Now</button>
 </div>
 
 <script>
-/* APIs */
 const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
-const UPI_API = "https://flipback-production.up.railway.app/api/upi";
+const UPI_API      = "https://flipback-production.up.railway.app/api/upi";
 
-/* State */
 let productPrice = 0;
 let upiId = "";
 let selectedMethod = "phonepe";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-/* Get UPI ID (receiver) */
+/* UPI ID FETCH */
 fetch(UPI_API)
   .then(r => r.json())
   .then(d => {
     upiId = d?.data?.upi_id || d?.upi_id || "";
   });
 
-/* Load product (amount auto from web) */
+/* PRODUCT LOAD */
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
+
   const p = d.data.find(x =>
     String(x.id) === qs("id") || String(x._id) === qs("id")
   );
@@ -166,17 +148,29 @@ async function loadProduct(){
   productCard.innerHTML = `
     <div class="product-row">
       <img src="${p.main_image || p.image}" class="product-img">
-      <div>₹${productPrice}</div>
+      <div>
+        <b>${p.title}</b><br>
+        ₹${productPrice}<br>
+        <small>(Amount auto – editable in UPI app)</small>
+      </div>
     </div>
   `;
-
-  price.innerText =
-  bottomAmount.innerText = "₹" + productPrice;
-
-  payBtn.disabled = false;
 }
 
-/* Select app */
+/* ADDRESS (DYNAMIC – NO HARDCODE) */
+const address = JSON.parse(localStorage.getItem("delivery_address") || "{}");
+
+addressCard.innerHTML = address.name ? `
+  <h4>Delivery Address</h4>
+  <div style="font-size:14px">
+    <b>${address.name}</b><br>
+    ${address.address}<br>
+    ${address.city} – ${address.pincode}<br>
+    Phone: ${address.phone}
+  </div>
+` : "";
+
+/* PAYMENT APP SELECT */
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
     document.querySelectorAll(".pay-option")
@@ -186,25 +180,21 @@ document.querySelectorAll(".pay-option").forEach(p=>{
   };
 });
 
-/* Normal UPI payment (person to person) */
+/* ✅ FINAL FIX — AMOUNT AUTO + EDITABLE */
 function payNow(){
   if(!upiId) return alert("UPI not ready");
 
   const params =
     `pa=${encodeURIComponent(upiId)}` +
-    `&am=${productPrice}` +
+    `&pn=Merchant` +
+    `&am=${productPrice}` +       // ✅ FIXED HERE
     `&cu=INR` +
-    `&tn=Payment`;
+    `&tn=Order Payment`;
 
-  let url = "";
-  if(selectedMethod === "phonepe")
-    url = `phonepe://pay?${params}`;
-
-  if(selectedMethod === "paytm")
-    url = `paytmmp://pay?${params}`;
-
-  if(selectedMethod === "gpay")
-    url = `tez://upi/pay?${params}`;
+  let url="";
+  if(selectedMethod==="phonepe") url=`phonepe://pay?${params}`;
+  if(selectedMethod==="paytm")   url=`paytmmp://pay?${params}`;
+  if(selectedMethod==="gpay")    url=`tez://upi/pay?${params}`;
 
   window.location.href = url;
 }
