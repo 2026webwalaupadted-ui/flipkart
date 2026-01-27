@@ -84,12 +84,10 @@ let selectedMethod = "phonepe";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-// Fetch UPI ID
 fetch(UPI_API)
   .then(r => r.json())
   .then(d => upiId = d?.data?.upi_id || d?.upi_id || "");
 
-// Load product (price sirf reference ke liye)
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
@@ -109,7 +107,6 @@ async function loadProduct(){
   payBtn.disabled = false;
 }
 
-// Payment method select
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
     document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
@@ -118,7 +115,6 @@ document.querySelectorAll(".pay-option").forEach(p=>{
   };
 });
 
-// PAY NOW (AMOUNT EDITABLE)
 function payNow(){
   if(!upiId) return alert("UPI not ready");
 
