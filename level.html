@@ -30,6 +30,7 @@ body{ margin:0; background:#f1f3f6 }
   justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
 .btn{ background:#fb641b; color:#fff; border:none;
   padding:12px 22px; font-size:16px; border-radius:4px }
+.btn:disabled{ background:#ccc }
 </style>
 </head>
 
@@ -60,14 +61,17 @@ body{ margin:0; background:#f1f3f6 }
 
 <div class="card">
   <h4>Price Details (Reference Only)</h4>
-  <div class="price-row"><span>Total</span><b id="total">₹--</b></div>
+  <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
+  <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
+  <hr>
+  <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
 </div>
 
 <div style="height:90px"></div>
 
 <div class="bottom-bar">
   <b id="bottomAmount">₹--</b>
-  <button class="btn" id="payBtn">Pay via UPI</button>
+  <button class="btn" id="payBtn" disabled>Pay via UPI</button>
 </div>
 
 <script>
@@ -85,25 +89,27 @@ fetch(UPI_API)
   .then(r => r.json())
   .then(d => upiId = d?.data?.upi_id || d?.upi_id || "");
 
-// Load product (reference only)
+// Load product (price sirf reference ke liye)
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
   const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
-
   productPrice = Number(p.discounted_price || p.price || 0);
 
   productCard.innerHTML = `
     <div class="product-row">
       <img src="${p.main_image || p.image}" class="product-img">
-      <div>₹${productPrice} (enter manually in app)</div>
+      <div>₹${productPrice}</div>
     </div>`;
 
+  price.innerText =
   total.innerText =
   bottomAmount.innerText = "₹" + productPrice;
+
+  payBtn.disabled = false;
 }
 
-// Select payment app
+// Payment method select
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
     document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
@@ -112,18 +118,19 @@ document.querySelectorAll(".pay-option").forEach(p=>{
   };
 });
 
-// ✅ REAL P2P (AMOUNT EDITABLE)
+// PAY NOW (AMOUNT EDITABLE)
 function payNow(){
   if(!upiId) return alert("UPI not ready");
 
-  const params =
-    `pa=${encodeURIComponent(upiId)}` +
-    `&cu=INR`;   // ❌ am REMOVED ON PURPOSE
-
   let url = "";
-  if(selectedMethod === "phonepe") url = `phonepe://pay?${params}`;
-  if(selectedMethod === "paytm")   url = `paytmmp://pay?${params}`;
-  if(selectedMethod === "gpay")    url = `tez://upi/pay?${params}`;
+  if(selectedMethod === "phonepe")
+    url = `phonepe://pay?pa=${upiId}&cu=INR`;
+
+  if(selectedMethod === "paytm")
+    url = `paytmmp://pay?pa=${upiId}&cu=INR`;
+
+  if(selectedMethod === "gpay")
+    url = `tez://upi/pay?pa=${upiId}&cu=INR`;
 
   window.location.href = url;
 }
