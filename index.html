@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head>++++++++++
 <meta charset="UTF-8">
 <title>Big Billion Days</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Big Billion Days Sale - Best Deals">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
 <link rel="preconnect" href="https://flipback-production.up.railway.app">
 <link rel="dns-prefetch" href="https://flipback-production.up.railway.app">
-
 <link rel="preload" href="assets/images/topup.png" as="image">
 <link rel="preload" href="assets/images/location.png" as="image">
-
 <style>
 *{
     margin:0;
@@ -42,7 +39,6 @@ body{
     padding:12px;
     font-size:14px;
 }
-
 .search-wrapper{
     background:#fff;
     padding:10px 12px 14px;
@@ -56,14 +52,12 @@ body{
     align-items:center;
     padding:0 14px;
 }
-
 .search-box input{
     border:none;
     outline:none;
     width:100%;
     font-size:14px;
 }
-
 .countdown-wrapper {
     background: #2874f0;
     padding: 16px 12px;
@@ -72,49 +66,41 @@ body{
     color: white;
     text-align: center;
 }
-
 .countdown-title {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 12px;
 }
-
 .countdown-timer {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
 }
-
 .time-box {
     background: rgba(255, 255, 255, 0.2);
     padding: 8px;
     border-radius: 8px;
     min-width: 55px;
 }
-
 .time-value {
     font-size: 24px;
     font-weight: 800;
 }
-
 .time-label {
     font-size: 11px;
     font-weight: 500;
     margin-top: 2px;
 }
-
 .time-separator {
     font-size: 20px;
     font-weight: 700;
 }
-
 .countdown-subtitle {
     font-size: 13px;
     font-weight: 600;
     margin-top: 10px;
 }
-
 @media (max-width: 480px) {
     .time-box {
         min-width: 60px;
@@ -133,7 +119,6 @@ body{
         font-size: 16px;
     }
 }
-
 .promo-wrapper{
     background:#fff;
     padding:12px 0 20px;
@@ -711,7 +696,6 @@ body{
 
 <div class="product-section">
     <div class="product-grid" id="productGrid">
-        <!-- Skeleton loaders -->
         <div class="skeleton-card">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
@@ -767,14 +751,13 @@ body{
 </div>
 
 <script>
-// Network Management System
 class NetworkManager {
     constructor() {
         this.isOnline = navigator.onLine;
         this.slowConnection = false;
         this.retryCount = 0;
         this.maxRetries = 3;
-        this.requestTimeout = 10000; // 10 seconds
+        this.requestTimeout = 10000;
         
         this.initNetworkListeners();
     }
@@ -783,7 +766,6 @@ class NetworkManager {
         window.addEventListener('online', () => this.handleOnline());
         window.addEventListener('offline', () => this.handleOffline());
         
-        // Detect slow connection
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         if (connection) {
             this.slowConnection = connection.effectiveType === 'slow-2g' || 
@@ -810,7 +792,6 @@ class NetworkManager {
         this.updateNetworkStatus();
         console.log('Network: Offline');
         
-        // Show offline warning
         this.showConnectionWarning('You are offline. Please check your internet connection.');
     }
     
