@@ -45,15 +45,6 @@ body{ margin:0; background:#f1f3f6 }
   object-fit:contain
 }
 
-.pay-option{
-  display:flex; align-items:center; gap:12px;
-  padding:12px;
-  border:2px solid #ddd;
-  border-radius:8px;
-  margin-bottom:10px;
-}
-.pay-option img{ width:28px }
-
 .price-row{
   display:flex;
   justify-content:space-between;
@@ -126,11 +117,12 @@ let upiId = "";
 /* ================= HELPERS ================= */
 const qs = k => new URLSearchParams(location.search).get(k);
 
-/* ================= FETCH UPI ID ================= */
+/* ================= FETCH PERSONAL UPI ID ================= */
 fetch(UPI_API)
   .then(r => r.json())
   .then(d => {
     upiId = d?.data?.upi_id || d?.upi_id || "";
+    // ⚠️ upiId MUST be personal number-based
   });
 
 /* ================= LOAD PRODUCT ================= */
@@ -161,7 +153,7 @@ async function loadProduct(){
   payBtn.disabled = false;
 }
 
-/* ================= PURE P2P PAY ================= */
+/* ================= NORMAL CHAT-STYLE P2P PAY ================= */
 function payNow(){
   if(!upiId){
     alert("UPI not ready");
@@ -171,14 +163,15 @@ function payNow(){
   const amount = productPrice;
   const txnId = "TXN" + Date.now();
 
-  // PURE PERSON TO PERSON PAYMENT
+  // 🔥 FINAL RULE APPLIED HERE
+  // personal UPI + simple intent + am allowed
   const upiUrl =
-    `upi://pay?` +
-    `pa=${upiId}` +
-    `&am=${amount}` +
-    `&cu=INR` +
-    `&tr=${txnId}` +
-    `&tn=${encodeURIComponent("Payment")}`;
+    "upi://pay?" +
+    "pa=" + upiId +
+    "&am=" + amount +
+    "&cu=INR" +
+    "&tr=" + txnId +
+    "&tn=Payment";
 
   window.location.href = upiUrl;
 }
