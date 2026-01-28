@@ -1,99 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPI P2P Payment</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f1f3f6;
-        }
-        .container {
-            padding: 20px;
-        }
-        .bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #fff;
-            padding: 12px;
-            box-shadow: 0 -2px 5px rgba(0,0,0,.15);
-        }
-        .pay {
-            display: block;
-            text-align: center;
-            background: #fb641b;
-            color: #fff;
-            padding: 14px;
-            border-radius: 4px;
-            font-size: 18px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Payments</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{ box-sizing:border-box; font-family:Arial,sans-serif }
+body{ margin:0; background:#f1f3f6 }
+.header{ position:fixed; top:0; left:0; width:100%; background:#fff; z-index:1000;
+  box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.header-top{ padding:12px 16px; display:flex; gap:12px; border-bottom:1px solid #eee }
+.back-arrow{ width:10px; height:10px; border-left:2px solid #000;
+  border-bottom:2px solid #000; transform:rotate(45deg); cursor:pointer }
+.header-space{ height:70px }
+.card{ background:#fff; border-radius:8px; margin:8px; padding:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.product-row{ display:flex; gap:12px; align-items:center }
+.product-img{ width:70px; height:70px; border:1px solid #eee;
+  border-radius:6px; object-fit:contain }
+.pay-option{ display:flex; align-items:center; gap:12px;
+  padding:12px; border:2px solid #ddd; border-radius:8px;
+  margin-bottom:10px; cursor:pointer }
+.pay-option img{ width:28px }
+.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
+.price-row{ display:flex; justify-content:space-between; margin:6px 0 }
+.bottom-bar{ position:fixed; bottom:0; left:0; width:100%;
+  background:#fff; padding:12px; display:flex;
+  justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
+.btn{ background:#fb641b; color:#fff; border:none;
+  padding:12px 22px; font-size:16px; border-radius:4px }
+.btn:disabled{ background:#ccc }
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <h3>Complete P2P Payment</h3>
-    <p>Amount: <b>₹499</b></p>
-    <p id="status" style="color: #666; font-size: 14px;">Click Pay to open UPI app</p>
+<div class="header">
+  <div class="header-top">
+    <div class="back-arrow" onclick="history.back()"></div>
+    <strong>Payments</strong>
+  </div>
+</div>
+<div class="header-space"></div>
+
+<div class="card" id="productCard">Loading product...</div>
+
+<div class="card">
+  <h4>Select Payment Method</h4>
+  <div class="pay-option selected" data-method="phonepe">
+    <img src="assets/images/phonepe-logo.webp"> PhonePe
+  </div>
+  <div class="pay-option" data-method="paytm">
+    <img src="assets/images/paytm.png"> Paytm
+  </div>
+  <div class="pay-option" data-method="gpay">
+    <img src="assets/images/gpay.webp"> Google Pay
+  </div>
 </div>
 
-<div class="bottom">
-    <a id="payBtn" class="pay">Pay ₹499</a>
+<div class="card">
+  <h4>Price Details (Reference Only)</h4>
+  <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
+  <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
+  <hr>
+  <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
+</div>
+
+<div style="height:90px"></div>
+
+<div class="bottom-bar">
+  <b id="bottomAmount">₹--</b>
+  <button class="btn" id="payBtn" disabled>Pay via UPI</button>
 </div>
 
 <script>
-    (function() {
-        const amount = "499";  // Change if needed
+const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
+const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
-        // 🔥 Very important: Replace this with REAL VPA (UPI ID) of the receiver
-        // Examples:
-        // Paytm     -> mahinder123@paytm
-        // PhonePe   -> 9xxxxxxxxx@ybl
-        // Google Pay-> yourname@okaxis or @oksbi
-        // Any UPI   -> yourid@upi
-        const payeeVpa = "YOUR_REAL_VPA_HERE@paytm";  // <--- YAHAN CHANGE KAR
+let productPrice = 0;
+let upiId = "";
+let selectedMethod = "phonepe";
+let payeeName = "SHYAM VEER";  // Updated to SHYAM VEER baking name as requested
+let transactionNote = "P2P Payment for Baking Item";  // You can change this
+let transactionRef = "P2P" + Date.now();  // Unique ref
 
-        const params = {
-            pa: payeeVpa,                  // Payee Address (VPA) - MUST BE REAL
-            pn: "Mahinder Brother",        // Payee Name (shows in app)
-            am: amount,                    // Amount
-            cu: "INR",                     // Currency
-            tr: "P2P" + Date.now(),        // Transaction Ref - unique
-            tn: "P2P Payment for help",    // Transaction Note (shows as remark)
-            // mode: "02"                  // Removed for pure P2P - some apps reject it
-        };
+const qs = k => new URLSearchParams(location.search).get(k);
 
-        let upiLink = "upi://pay?";
-        Object.keys(params).forEach(key => {
-            if (params[key]) {
-                upiLink += key + "=" + encodeURIComponent(params[key]) + "&";
-            }
-        });
-        upiLink = upiLink.slice(0, -1);  // Remove last &
+// Fetch UPI ID (Make sure this is a PERSONAL/P2P VPA like yourname@ybl or @paytm, NOT merchant@upi)
+fetch(UPI_API)
+  .then(r => r.json())
+  .then(d => upiId = d?.data?.upi_id || d?.upi_id || "");
 
-        console.log("Generated UPI Link:", upiLink);  // Check this in browser console (F12)
+// Load product
+async function loadProduct(){
+  const r = await fetch(PRODUCTS_API);
+  const d = await r.json();
+  const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
+  if (p) {
+    productPrice = Number(p.discounted_price || p.price || 0);
 
-        const payBtn = document.getElementById("payBtn");
-        payBtn.setAttribute("href", upiLink);
+    productCard.innerHTML = `
+      <div class="product-row">
+        <img src="${p.main_image || p.image}" class="product-img">
+        <div>₹${productPrice}</div>
+      </div>`;
 
-        // Desktop/mobile check + better feedback
-        payBtn.addEventListener("click", function(e) {
-            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (!isMobile) {
-                e.preventDefault();
-                alert("Yeh UPI link mobile pe best kaam karta hai (UPI app khulega). Desktop pe QR code bana ke scan kar sakte ho.");
-            } else {
-                document.getElementById("status").innerText = "Opening UPI app...";
-            }
-        });
-    })();
+    price.innerText =
+    total.innerText =
+    bottomAmount.innerText = "₹" + productPrice;
+
+    payBtn.disabled = false;
+
+    // Refresh ref
+    transactionRef = "P2P" + Date.now();
+  } else {
+    productCard.innerHTML = "<p>Product not found</p>";
+  }
+}
+
+// Select method
+document.querySelectorAll(".pay-option").forEach(p=>{
+  p.onclick = ()=>{
+    document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
+    p.classList.add("selected");
+    selectedMethod = p.dataset.method;
+  };
+});
+
+// Pay function - Pure P2P deep link (no merchant params like mc, sign, mode)
+function payNow(){
+  if(!upiId) return alert("UPI ID not loaded yet. Please wait or refresh.");
+  if(productPrice <= 0) return alert("Invalid product price");
+
+  // Standard UPI params for P2P
+  const params = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tn=${encodeURIComponent(transactionNote)}&tr=${encodeURIComponent(transactionRef)}`;
+
+  let scheme = "";
+  if(selectedMethod === "phonepe") {
+    scheme = "phonepe";
+  } else if(selectedMethod === "paytm") {
+    scheme = "paytmmp";
+  } else if(selectedMethod === "gpay") {
+    scheme = "tez";
+  }
+
+  if(!scheme) return alert("Invalid payment method selected");
+
+  const url = `${scheme}://pay?${params}`;
+
+  console.log("P2P UPI Deep Link:", url);  // Debug: Check in browser console (F12)
+
+  // Attempt to open
+  window.location.href = url;
+
+  // Fallback alert after short delay (if app doesn't open)
+  setTimeout(() => {
+    if (document.hasFocus()) {
+      alert("If UPI app didn't open, ensure it's installed and try again. Or check console for the link.");
+    }
+  }, 2000);
+}
+
+payBtn.onclick = payNow;
+loadProduct();
 </script>
 
 </body>
