@@ -2,142 +2,180 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Payments</title>
+<title>Chat & Pay - Transfer Money</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-*{ box-sizing:border-box; font-family:Arial,sans-serif }
-body{ margin:0; background:#f1f3f6 }
-.header{ position:fixed; top:0; left:0; width:100%; background:#fff; z-index:1000;
-  box-shadow:0 2px 4px rgba(0,0,0,.12)}
-.header-top{ padding:12px 16px; display:flex; gap:12px; border-bottom:1px solid #eee }
-.back-arrow{ width:10px; height:10px; border-left:2px solid #000;
-  border-bottom:2px solid #000; transform:rotate(45deg); cursor:pointer }
-.header-space{ height:70px }
-.card{ background:#fff; border-radius:8px; margin:8px; padding:12px;
-  box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.product-row{ display:flex; gap:12px; align-items:center }
-.product-img{ width:70px; height:70px; border:1px solid #eee;
-  border-radius:6px; object-fit:contain }
-.pay-option{ display:flex; align-items:center; gap:12px;
-  padding:12px; border:2px solid #ddd; border-radius:8px;
-  margin-bottom:10px; cursor:pointer }
-.pay-option img{ width:28px }
-.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
-.price-row{ display:flex; justify-content:space-between; margin:6px 0 }
-.bottom-bar{ position:fixed; bottom:0; left:0; width:100%;
-  background:#fff; padding:12px; display:flex;
-  justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
-.btn{ background:#fb641b; color:#fff; border:none;
-  padding:12px 22px; font-size:16px; border-radius:4px }
-.btn:disabled{ background:#ccc }
+* { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; }
+body { background: #f1f3f6; padding-bottom: 120px; }
+.header { 
+  position: fixed; top: 0; left: 0; width: 100%; 
+  background: #fff; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,.12); 
+}
+.header-top { 
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px; 
+  border-bottom: 1px solid #eee; 
+}
+.back-arrow { 
+  width: 10px; height: 10px; border-left: 2px solid #000; border-bottom: 2px solid #000; 
+  transform: rotate(135deg); cursor: pointer; 
+}
+.header-space { height: 70px; }
+.card { 
+  background: #fff; border-radius: 8px; margin: 12px 16px; padding: 16px; 
+  box-shadow: 0 1px 3px rgba(0,0,0,.08); 
+}
+.product-row { display: flex; gap: 12px; align-items: center; }
+.product-img { width: 80px; height: 80px; border: 1px solid #eee; border-radius: 8px; object-fit: contain; }
+.pay-option { 
+  display: flex; align-items: center; gap: 12px; padding: 12px; 
+  border: 2px solid #ddd; border-radius: 8px; margin-bottom: 12px; cursor: pointer; 
+}
+.pay-option img { width: 32px; height: 32px; object-fit: contain; }
+.pay-option.selected { border-color: #2874f0; background: #f0f7ff; }
+.info-text { font-size: 14px; color: #555; margin: 16px 0; text-align: center; }
+.bottom-bar { 
+  position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; 
+  padding: 12px 16px; box-shadow: 0 -2px 8px rgba(0,0,0,.1); z-index: 999; 
+  text-align: center;
+}
+.btn { 
+  background: #0ba35d; color: #fff; border: none; padding: 14px 40px; font-size: 17px; 
+  border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; max-width: 400px;
+}
+.btn:disabled { background: #ccc; }
 </style>
 </head>
-
 <body>
 
 <div class="header">
   <div class="header-top">
     <div class="back-arrow" onclick="history.back()"></div>
-    <strong>Payments</strong>
+    <strong>Transfer Money / Chat & Pay</strong>
   </div>
 </div>
+
 <div class="header-space"></div>
 
-<div class="card" id="productCard">Loading product...</div>
+<div class="card" id="productCard">
+  <p>Loading product details (reference only)...</p>
+</div>
 
 <div class="card">
-  <h4>Select Payment Method</h4>
-  <div class="pay-option selected" data-method="phonepe">
-    <img src="assets/images/phonepe-logo.webp"> PhonePe
+  <h4>Select Payment App</h4>
+  <div class="pay-option selected" data-method="paytm">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Paytm_Logo_%28standalone%29.svg" alt="Paytm"> Paytm
   </div>
-  <div class="pay-option" data-method="paytm">
-    <img src="assets/images/paytm.png"> Paytm
+  <div class="pay-option" data-method="phonepe">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/PhonePe_Logo.png" alt="PhonePe"> PhonePe
   </div>
   <div class="pay-option" data-method="gpay">
-    <img src="assets/images/gpay.webp"> Google Pay
+    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Pay_Logo.svg" alt="Google Pay"> Google Pay
   </div>
 </div>
 
-<div class="card">
-  <h4>Price Details (Reference Only)</h4>
-  <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
-  <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
-  <hr>
-  <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
+<div class="card info-text">
+  Amount app mein khud enter karna – jaise Paytm ke "Transfer Money" screen mein hota hai.<br>
+  Failed ho to Retry kar sakte ho.
 </div>
 
-<div style="height:90px"></div>
+<div style="height: 100px;"></div>
 
 <div class="bottom-bar">
-  <b id="bottomAmount">₹--</b>
-  <button class="btn" id="payBtn" disabled>Pay via UPI</button>
+  <button class="btn" id="payBtn">Open App & Enter Amount</button>
 </div>
 
 <script>
-const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
-const UPI_API = "https://flipback-production.up.railway.app/api/upi";
+// =============================================
+// CONFIG
+// =============================================
+const UPI_ID = "paytm.s1xjfgt@pty";       // Screenshot wala VPA use kar rahe (tum badal sakte ho)
+const PAYEE_NAME = "Shyam Veer Baking";
+let selectedMethod = "paytm";             // Default Paytm kyunki screenshot Paytm ka hai
 
-let productPrice = 0;
-let upiId = "";
-let selectedMethod = "phonepe";
+// =============================================
+// Product Load (sirf reference ke liye, amount nahi bhej rahe)
+// =============================================
+const qs = (key) => new URLSearchParams(location.search).get(key);
 
-const qs = k => new URLSearchParams(location.search).get(k);
+async function loadProduct() {
+  try {
+    const res = await fetch("https://flipback-production.up.railway.app/api/products");
+    const data = await res.json();
+    const product = data.data?.find(p => String(p.id) === qs("id") || String(p._id) === qs("id"));
 
-// Fetch UPI ID
-fetch(UPI_API)
-  .then(r => r.json())
-  .then(d => upiId = d?.data?.upi_id || d?.upi_id || "");
-
-// Load product (price sirf reference ke liye)
-async function loadProduct(){
-  const r = await fetch(PRODUCTS_API);
-  const d = await r.json();
-  const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
-  productPrice = Number(p.discounted_price || p.price || 0);
-
-  productCard.innerHTML = `
-    <div class="product-row">
-      <img src="${p.main_image || p.image}" class="product-img">
-      <div>₹${productPrice}</div>
-    </div>`;
-
-  price.innerText =
-  total.innerText =
-  bottomAmount.innerText = "₹" + productPrice;
-
-  payBtn.disabled = false;
+    if (product) {
+      const price = Number(product.discounted_price || product.price || 0);
+      document.getElementById("productCard").innerHTML = `
+        <div class="product-row">
+          <img src="${product.main_image || product.image || 'https://via.placeholder.com/80'}" class="product-img" alt="Product">
+          <div>
+            <strong>${product.name || "Selected Item"}</strong><br>
+            Suggested Amount: <span style="color:#0ba35d">₹${price}</span> (app mein type karna)
+          </div>
+        </div>
+      `;
+    } else {
+      document.getElementById("productCard").innerHTML = "<p>Product not found. Use any amount in app.</p>";
+    }
+  } catch (err) {
+    document.getElementById("productCard").innerHTML = "<p>Product load failed. Use any amount in app.</p>";
+  }
 }
 
-// Payment method select
-document.querySelectorAll(".pay-option").forEach(p=>{
-  p.onclick = ()=>{
-    document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
-    p.classList.add("selected");
-    selectedMethod = p.dataset.method;
-  };
+// =============================================
+// Payment Method Selection
+// =============================================
+document.querySelectorAll(".pay-option").forEach(opt => {
+  opt.addEventListener("click", () => {
+    document.querySelectorAll(".pay-option").forEach(o => o.classList.remove("selected"));
+    opt.classList.add("selected");
+    selectedMethod = opt.dataset.method;
+  });
 });
 
-// PAY NOW (AMOUNT EDITABLE)
-function payNow(){
-  if(!upiId) return alert("UPI not ready");
+// =============================================
+// Initiate Payment - NO AMOUNT PARAMETER → Editable in App
+// =============================================
+function initiatePayment() {
+  const transactionId = "TXN" + Date.now();
+  const note = "Order Payment for Shyam Veer Baking";
 
-  let url = "";
-  if(selectedMethod === "phonepe")
-    url = `phonepe://pay?pa=${upiId}&cu=INR`;
+  const baseParams = [
+    `pa=${encodeURIComponent(UPI_ID)}`,
+    `pn=${encodeURIComponent(PAYEE_NAME)}`,
+    `tr=${encodeURIComponent(transactionId)}`,
+    `tn=${encodeURIComponent(note)}`,
+    `cu=INR`
+    // am=... HATAYA → amount editable rahega app mein
+  ].join("&");
 
-  if(selectedMethod === "paytm")
-    url = `paytmmp://pay?pa=${upiId}&cu=INR`;
+  let scheme = "upi://pay?";
 
-  if(selectedMethod === "gpay")
-    url = `tez://upi/pay?pa=${upiId}&cu=INR`;
+  if (selectedMethod === "phonepe") {
+    scheme = "phonepe://pay?";
+  } else if (selectedMethod === "paytm") {
+    scheme = "paytmmp://pay?";
+  } else if (selectedMethod === "gpay") {
+    scheme = "tez://upi/pay?";
+  }
 
-  window.location.href = url;
+  const fullUrl = scheme + baseParams;
+
+  console.log("Opening App (amount editable):", fullUrl);
+
+  window.location.href = fullUrl;
+
+  setTimeout(() => {
+    if (document.hasFocus()) {
+      alert("App nahi khula?\n1. Confirm app installed aur updated hai\n2. Browser se bahar nikal ke try karo\n3. Console (F12) mein URL copy karke check karo\n4. Paytm preferred hai screenshot ke hisab se");
+    }
+  }, 5000);
 }
 
-payBtn.onclick = payNow;
+document.getElementById("payBtn").addEventListener("click", initiatePayment);
+
+// Init
 loadProduct();
 </script>
-
 </body>
 </html>
