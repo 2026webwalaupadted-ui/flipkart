@@ -70,21 +70,20 @@ const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
 const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
 let productPrice = 0;
-let upiId = "";
+let upiId = "paytm.slxjfgt@pty";  // Hardcoded tere merchant VPA - yeh chat & pay trigger karega
 let selectedMethod = "phonepe";
 let payeeName = "Shyam Veer Baking";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-// Fetch UPI ID (tere current merchant @pty wala hi perfect hai is screen ke liye)
 fetch(UPI_API)
   .then(r => r.json())
   .then(d => {
-    upiId = d?.data?.upi_id || d?.upi_id || "";
-    console.log("UPI ID (for chat & pay):", upiId);
+    upiId = d?.data?.upi_id || d?.upi_id || "paytm.slxjfgt@pty";  // Fallback to merchant VPA
+    console.log("UPI ID for Chat & Pay:", upiId);
   });
 
-// Load product
+// Load product (same as before)
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
@@ -105,7 +104,6 @@ async function loadProduct(){
   }
 }
 
-// Select method
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
     document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
@@ -114,35 +112,32 @@ document.querySelectorAll(".pay-option").forEach(p=>{
   };
 });
 
-// Pay function - Optimized for PhonePe "Continue to chat & pay"
 function payNow(){
-  if(!upiId) return alert("UPI ID not loaded. Refresh page.");
+  if(!upiId) return alert("UPI ID not loaded.");
   if(productPrice <= 0) return alert("Invalid amount");
 
   const tr = "P2P" + Date.now();
   const params = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${encodeURIComponent(tr)}`;
 
-  let url = `upi://pay?${params}`;  // Generic fallback
+  let url = `upi://pay?${params}`;
 
   if(selectedMethod === "phonepe") {
-    // PhonePe ke liye best: chat & pay trigger (tere screenshot jaisa)
-    url = `phonepe://pay?${params}`;
+    url = `phonepe://pay?${params}`;  // PhonePe specific - chat & pay ke liye best
   } else if(selectedMethod === "paytm") {
     url = `paytmmp://pay?${params}`;
   } else if(selectedMethod === "gpay") {
     url = `tez://upi/pay?${params}`;
   }
 
-  console.log("Chat & Pay UPI Link:", url);  // Console mein dekh, copy karke test kar sakta hai
+  console.log("Generated Link (should trigger chat & pay):", url);
 
   window.location.href = url;
 
-  // Fallback if not opening
   setTimeout(() => {
     if (document.hasFocus()) {
-      alert("Chat & pay screen nahi khula? \n1. PhonePe app latest version rakho.\n2. Mobile browser se try kar (Chrome).\n3. Console se link copy kar ke new tab mein paste try kar.\n4. Receiver number contacts mein add mat karna (warning ke liye).");
+      alert("Chat & pay screen nahi aaya? \n1. Receiver number (7881174284) ko contacts se remove kar.\n2. PhonePe app restart/update kar.\n3. PhonePe select karke try kar.\n4. Console (F12) se link copy kar bata.");
     }
-  }, 4000);
+  }, 5000);
 }
 
 payBtn.onclick = payNow;
