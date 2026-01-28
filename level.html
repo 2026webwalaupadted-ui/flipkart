@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chat & Pay - Transfer Money</title>
+<title>Chat & Pay with Amount</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; }
@@ -16,6 +16,7 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 .pay-option img { width: 32px; height: 32px; object-fit: contain; }
 .pay-option.selected { border-color: #2874f0; background: #f0f7ff; }
 .info-text { font-size: 14px; color: #555; margin: 16px 0; text-align: center; padding: 0 16px; }
+.amount-display { font-size: 24px; font-weight: bold; color: #0ba35d; text-align: center; margin: 20px 0; }
 .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 16px; box-shadow: 0 -2px 8px rgba(0,0,0,.1); text-align: center; }
 .btn { background: #0ba35d; color: #fff; border: none; padding: 16px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; max-width: 500px; }
 .copy-btn { background: #2874f0; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; margin-top: 12px; }
@@ -26,15 +27,17 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 <div class="header">
   <div class="header-top">
     <div class="back-arrow" onclick="history.back()"></div>
-    <strong>Pay via Chat & Transfer</strong>
+    <strong>Chat & Pay with Amount</strong>
   </div>
 </div>
 
 <div class="header-space"></div>
 
 <div class="card" id="productCard">
-  <p>Loading product (for reference)...</p>
+  <p>Loading product (reference)...</p>
 </div>
+
+<div class="amount-display" id="amountDisplay">₹499</div> <!-- Example amount - change in script -->
 
 <div class="card">
   <h4>Pay To</h4>
@@ -46,9 +49,9 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 </div>
 
 <div class="card">
-  <h4>Open in App (Recommended: Paytm)</h4>
+  <h4>Select App</h4>
   <div class="pay-option selected" data-method="paytm">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Paytm_Logo_%28standalone%29.svg" alt="Paytm"> Paytm (Best for Chat & Pay)
+    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Paytm_Logo_%28standalone%29.svg" alt="Paytm"> Paytm
   </div>
   <div class="pay-option" data-method="phonepe">
     <img src="https://upload.wikimedia.org/wikipedia/commons/2/2e/PhonePe_Logo.png" alt="PhonePe"> PhonePe
@@ -59,28 +62,27 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 </div>
 
 <div class="info-text">
-  Step 1: UPI ID copy karo<br>
-  Step 2: Paytm kholo → "Pay" section mein paste karo → amount type karo → Pay kar do.<br>
-  Ya button click kar ke try karo (agar app installed hai to direct khulega aur warning aayega agar contact nahi hai).
+  Amount pre-filled hoga app mein. Agar "Number not in contact" warning aaya to "Continue to chat & pay" pe click karo.<br>
+  Agar warning nahi aata, VPA app se delete kar ke fir try karo.
 </div>
 
 <div class="bottom-bar">
-  <button class="btn" id="payBtn">Try Open Paytm Chat & Pay</button>
+  <button class="btn" id="payBtn">Pay with Chat & Pay (Amount Filled)</button>
 </div>
 
 <script>
 // Config
-const UPI_ID = "paytm.s1xjfgt@pty";
+const UPI_ID = "paytm.s1xjfgt@pty"; // Change if needed
 const PAYEE_NAME = "Shyam Veer Baking";
+const AMOUNT = 499; // Change this to your desired amount
 let selectedMethod = "paytm";
+
+// Set amount display
+document.getElementById("amountDisplay").textContent = "₹" + AMOUNT;
 
 // Copy function
 function copyUpi() {
-  navigator.clipboard.writeText(UPI_ID).then(() => {
-    alert("UPI ID copied! Ab Paytm khol ke paste karo aur warning check karo.");
-  }).catch(() => {
-    alert("Copy failed, manually select kar lo: " + UPI_ID);
-  });
+  navigator.clipboard.writeText(UPI_ID).then(() => alert("Copied! Paste in Paytm."));
 }
 
 // Product load (optional)
@@ -91,22 +93,22 @@ async function loadProduct() {
     const data = await res.json();
     const p = data.data?.find(x => String(x.id) === qs("id") || String(x._id) === qs("id"));
     if (p) {
-      const price = Number(p.discounted_price || p.price || 0);
+      const price = Number(p.discounted_price || p.price || AMOUNT);
+      document.getElementById("amountDisplay").textContent = "₹" + price;
       document.getElementById("productCard").innerHTML = `
-        <div style="display:flex; gap:12px; align-items:center;">
+        <div style="display:flex; gap:12px;">
           <img src="${p.main_image || p.image || 'https://via.placeholder.com/80'}" style="width:80px;height:80px;object-fit:contain;border:1px solid #eee;border-radius:8px;">
           <div>
             <strong>${p.name || "Item"}</strong><br>
-            Suggested: ₹${price} (app mein daalna)
+            Amount: ₹${price}
           </div>
         </div>`;
-    } else {
-      document.getElementById("productCard").innerHTML = "<p>No product details.</p>";
+      // Update global amount
+      window.currentAmount = price;
     }
-  } catch(e) {
-    document.getElementById("productCard").innerHTML = "<p>Product load failed.</p>";
-  }
+  } catch(e) {}
 }
+loadProduct();
 
 // Method select
 document.querySelectorAll(".pay-option").forEach(opt => {
@@ -117,19 +119,21 @@ document.querySelectorAll(".pay-option").forEach(opt => {
   };
 });
 
-// Pay attempt with P2P parameters
+// Pay function - Amount pre-filled + P2P params for warning
 function tryOpenApp() {
+  const amount = window.currentAmount || AMOUNT;
   const txn = "TXN" + Date.now();
   const note = "Payment for Shyam Veer Baking";
 
-  let params = [
+  const params = [
     `pa=${encodeURIComponent(UPI_ID)}`,
     `pn=${encodeURIComponent(PAYEE_NAME)}`,
+    `am=${amount}`,
+    `cu=INR`,
     `tr=${encodeURIComponent(txn)}`,
     `tn=${encodeURIComponent(note)}`,
-    `cu=INR`,
-    `mode=02`,       // Secure mode
-    `purpose=00`     // P2P purpose to trigger personal transfer and contact warning
+    `mode=02`,
+    `purpose=00`  // P2P to try warning trigger
   ].join("&");
 
   let scheme = "upi://pay?";
@@ -138,20 +142,18 @@ function tryOpenApp() {
   else if (selectedMethod === "gpay") scheme = "tez://upi/pay?";
 
   const url = scheme + params;
-  console.log("Trying P2P URL for warning trigger:", url);
+  console.log("Launching with amount:", url);
 
   window.location = url;
 
   setTimeout(() => {
     if (document.hasFocus()) {
-      alert("App nahi khula ya warning nahi aaya?\n\n1. Confirm karo ki yeh VPA contacts mein save nahi hai aur pehle payment nahi kiya.\n2. Paytm app restart karo.\n3. Console (F12) mein URL copy karke batao.\n4. Manual tareeka use karo: Copy UPI ID aur Paytm mein paste karo.");
+      alert("App nahi khula ya chat screen nahi aaya?\n\n1. VPA contacts mein save nahi hai na?\n2. App update/restart karo\n3. Manual copy-paste try karo\n4. Console (F12) se URL copy karke batao");
     }
   }, 6000);
 }
 
 document.getElementById("payBtn").onclick = tryOpenApp;
-
-loadProduct();
 </script>
 </body>
 </html>
