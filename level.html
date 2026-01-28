@@ -1,74 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UPI Pay</title>
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f1f3f6;
-}
-.bottom{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:#fff;
-  padding:12px;
-  box-shadow:0 -2px 5px rgba(0,0,0,.15);
-}
-.pay{
-  display:block;
-  text-align:center;
-  background:#fb641b;
-  color:#fff;
-  padding:14px;
-  border-radius:4px;
-  font-size:18px;
-  text-decoration:none;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI P2P Payment</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f1f3f6;
+        }
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            padding: 12px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,.15);
+        }
+        .pay {
+            display: block;
+            text-align: center;
+            background: #fb641b;
+            color: #fff;
+            padding: 14px;
+            border-radius: 4px;
+            font-size: 18px;
+            text-decoration: none;
+        }
+    </style>
 </head>
-
 <body>
+    <div style="padding:20px">
+        <h3>Complete P2P Payment</h3>
+        <p>Amount: <b>₹499</b></p>
+    </div>
 
-<div style="padding:20px">
-  <h3>Complete Payment</h3>
-  <p>Amount: <b>₹499</b></p>
-</div>
+    <div class="bottom">
+        <a id="payBtn" class="pay">Pay ₹499</a>
+    </div>
 
-<div class="bottom">
-  <a id="payBtn" class="pay">Pay ₹499</a>
-</div>
+    <script>
+        (function() {
+            const amount = "499";
 
-<script>
-(function(){
+            // UPI Params for P2P Payment
+            const params = {
+                pa: "example@paytm",  // Replace with actual payee VPA (e.g., yourfriend@upi or example@paytm)
+                pn: "Payee Name",     // Optional: Payee's name for display
+                am: amount,           // Amount
+                cu: "INR",            // Currency
+                tr: "P2P" + Date.now(),  // Unique transaction reference
+                tn: "P2P Transfer",   // Optional: Transaction note
+                mode: "02"            // Mode for UPI (02 is for secure intent)
+            };
 
-  const amount = "499";
+            let upi = "upi://pay?";
+            Object.keys(params).forEach(key => {
+                if (params[key]) {  // Skip if value is empty
+                    upi += key + "=" + encodeURIComponent(params[key]) + "&";
+                }
+            });
 
-  // 🔥 UPI PARAMS
-  const params = {
-    pa: "paytm.s1xjfgt@pty",
-    am: amount,
-    cu: "INR",
-    tr: "P2P" + Date.now(),
-    mode: "02"
-  };
+            upi = upi.slice(0, -1);  // Remove trailing '&'
 
-  // 🔥 BUILD ENCODED UPI URI
-  let upi = "upi://pay?";
-  Object.keys(params).forEach(key => {
-    upi += key + "=" + encodeURIComponent(params[key]) + "&";
-  });
+            const payBtn = document.getElementById("payBtn");
+            payBtn.setAttribute("href", upi);
 
-  upi = upi.slice(0, -1); 
-
-  document.getElementById("payBtn").setAttribute("href", upi);
-
-})();
-</script>
-
+            // Optional: Fallback for desktop - alert if not on mobile
+            payBtn.addEventListener("click", function(e) {
+                if (!/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    e.preventDefault();
+                    alert("This UPI link works best on mobile devices with a UPI app installed. On desktop, you can scan a UPI QR code instead.");
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
