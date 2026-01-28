@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Payments</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 *{ box-sizing:border-box; font-family:Arial,sans-serif }
 body{ margin:0; background:#f1f3f6 }
@@ -16,14 +17,16 @@ body{ margin:0; background:#f1f3f6 }
 .product-img{ width:70px; height:70px; border:1px solid #eee; border-radius:6px; object-fit:contain }
 .pay-option{ display:flex; align-items:center; gap:12px; padding:12px; border:2px solid #ddd; border-radius:8px; margin-bottom:10px; cursor:pointer }
 .pay-option img{ width:28px }
-.pay-option.selected{ border-color:#6739b9; background:#f3e8ff } /* PhonePe purple theme */
+.pay-option.selected{ border-color:#2874f0; background:#f0f7ff }
 .price-row{ display:flex; justify-content:space-between; margin:6px 0 }
 .bottom-bar{ position:fixed; bottom:0; left:0; width:100%; background:#fff; padding:12px; display:flex; justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
-.btn{ background:#6739b9; color:#fff; border:none; padding:14px 28px; font-size:17px; border-radius:6px; font-weight:bold }
+.btn{ background:#fb641b; color:#fff; border:none; padding:12px 22px; font-size:16px; border-radius:4px }
 .btn:disabled{ background:#ccc }
 </style>
 </head>
+
 <body>
+
 <div class="header">
   <div class="header-top">
     <div class="back-arrow" onclick="history.back()"></div>
@@ -37,26 +40,29 @@ body{ margin:0; background:#f1f3f6 }
 <div class="card">
   <h4>Select Payment Method</h4>
   <div class="pay-option selected" data-method="phonepe">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/PhonePe_Logo.png"> PhonePe (Chat & Pay)
+    <img src="assets/images/phonepe-logo.webp"> PhonePe
+  </div>
+  <div class="pay-option" data-method="paytm">
+    <img src="assets/images/paytm.png"> Paytm
   </div>
   <div class="pay-option" data-method="gpay">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Pay_Logo.svg"> Google Pay
+    <img src="assets/images/gpay.webp"> Google Pay
   </div>
 </div>
 
 <div class="card">
-  <h4>Price Details</h4>
+  <h4>Price Details (Reference Only)</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
   <div class="price-row"><span>Delivery</span><span style="color:green">FREE</span></div>
   <hr>
   <div class="price-row"><b>Total</b><b id="total">₹--</b></div>
 </div>
 
-<div style="height:100px"></div>
+<div style="height:90px"></div>
 
 <div class="bottom-bar">
   <b id="bottomAmount">₹--</b>
-  <button class="btn" id="payBtn" disabled>Pay Now</button>
+  <button class="btn" id="payBtn" disabled>Pay via UPI</button>
 </div>
 
 <script>
@@ -64,17 +70,17 @@ const PRODUCTS_API = "https://flipback-production.up.railway.app/api/products";
 const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 
 let productPrice = 0;
-let upiId = "paytm.slxjfgt@pty";  // Tera UPI ID (Paytm wallet ka bhi chalega)
+let upiId = "paytm.slxjfgt@pty";  // CHANGE THIS TO YOUR MERCHANT/BUSINESS VPA (e.g. shyamveer@phonepebiz or @okbizaxis) – personal VPA se merchant nahi dikhega!
 let selectedMethod = "phonepe";
-let payeeName = "Shyam Veer Baking";
+let payeeName = "Shyam Veer Baking - Merchant";
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-// Load UPI ID from your API (if available)
 fetch(UPI_API)
   .then(r => r.json())
   .then(d => {
     upiId = d?.data?.upi_id || d?.upi_id || upiId;
+    console.log("Loaded Merchant UPI ID:", upiId);
   });
 
 // Load product
@@ -84,52 +90,54 @@ async function loadProduct(){
   const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
   if (p) {
     productPrice = Number(p.discounted_price || p.price || 0);
+
     document.getElementById("productCard").innerHTML = `
       <div class="product-row">
         <img src="${p.main_image || p.image}" class="product-img">
         <div>₹${productPrice}</div>
       </div>`;
+
     document.getElementById("price").innerText = 
     document.getElementById("total").innerText = 
     document.getElementById("bottomAmount").innerText = "₹" + productPrice;
     document.getElementById("payBtn").disabled = false;
+  } else {
+    document.getElementById("productCard").innerHTML = "<p>Product not found</p>";
   }
 }
 
-// Select payment method
-document.querySelectorAll(".pay-option").forEach(p => {
-  p.onclick = () => {
-    document.querySelectorAll(".pay-option").forEach(x => x.classList.remove("selected"));
+document.querySelectorAll(".pay-option").forEach(p=>{
+  p.onclick = ()=>{
+    document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
     p.classList.add("selected");
     selectedMethod = p.dataset.method;
   };
 });
 
-// MAGIC PAY FUNCTION - Chat & Pay ke liye best working trick
 function payNow(){
-  const tr = "P2P" + Date.now(); // Unique transaction ref
-  const params = `pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${tr}&tn=Payment for Product&mode=02&purpose=00`;
+  if(!upiId) return alert("UPI ID not loaded. Check API.");
+  if(productPrice <= 0) return alert("Invalid amount");
 
-  let url = "";
+  const tr = "MERCH" + Date.now();  // Merchant prefix for easy tracking
+  const params = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${encodeURIComponent(tr)}&tn=Order Payment for Shyam Veer Baking&mode=02&purpose=01&mc=5462`;
 
-  if(selectedMethod === "phonepe"){
-    // Yeh combination abhi bhi chat & pay trigger karta hai jab number saved nahi hota
-    url = `phonepe://upi/pay?${params}`;
-    // Agar upar wala nahi chalta to yeh backup
-    // url = `phonepe://pay?${params}`;
-  } else {
-    url = `upi://pay?${params}`;
+  let url = `upi://pay?${params}`;
+
+  if(selectedMethod === "phonepe") {
+    url = `phonepe://upi/pay?${params}`;  // Better for recent PhonePe versions
+  } else if(selectedMethod === "paytm") {
+    url = `paytmmp://pay?${params}`;
+  } else if(selectedMethod === "gpay") {
+    url = `tez://upi/pay?${params}`;
   }
 
-  console.log("Trying Chat & Pay URL:", url);
+  console.log("Merchant UPI Deep Link:", url);
 
-  // Open the deep link
   window.location.href = url;
 
-  // Agar 5 second baad bhi page pe hi raha (deep link fail hua) to alert
   setTimeout(() => {
     if (document.hasFocus()) {
-      alert("Chat & Pay screen nahi khula?\n\nKya karna hai:\n1. Contacts se 7881174284 number DELETE kar do.\n2. PhonePe app restart karo ya update karo.\n3. Chrome browser se try karo.\n4. PhonePe select karke hi Pay dabaao.\n\nAgar fir bhi nahi to console (F12) khol ke URL copy kar ke bata dena.");
+      alert("UPI app nahi khula ya merchant nahi dikha?\n1. Confirm karo upiId MERCHANT VPA hai (personal nahi).\n2. Contacts se receiver number delete kar do.\n3. App restart/update karo.\n4. Console (F12) khol ke URL copy kar bata do.\n5. Agar fir bhi P2P dikhe to PhonePe/Google Pay Business account banao.");
     }
   }, 5000);
 }
@@ -137,5 +145,6 @@ function payNow(){
 document.getElementById("payBtn").onclick = payNow;
 loadProduct();
 </script>
+
 </body>
 </html>
