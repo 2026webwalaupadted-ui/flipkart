@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pay Now</title>
+<title>UPI Pay</title>
+
 <style>
-body{font-family:Arial;background:#f1f3f6;margin:0}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f1f3f6;
+}
 .bottom{
   position:fixed;
   bottom:0;
@@ -29,7 +35,7 @@ body{font-family:Arial;background:#f1f3f6;margin:0}
 <body>
 
 <div style="padding:20px">
-  <h3>Complete your payment</h3>
+  <h3>Complete Payment</h3>
   <p>Amount: <b>₹499</b></p>
 </div>
 
@@ -39,9 +45,12 @@ body{font-family:Arial;background:#f1f3f6;margin:0}
 
 <script>
 (function(){
+
+  // 🔥 STRICT AMOUNT (NO SYMBOL, NO SPACE)
   const amount = "499";
 
-  const upiParams = {
+  // 🔥 UPI PARAMS
+  const params = {
     pa: "paytm.s1xjfgt@pty",
     am: amount,
     cu: "INR",
@@ -49,12 +58,17 @@ body{font-family:Arial;background:#f1f3f6;margin:0}
     mode: "02"
   };
 
+  // 🔥 BUILD ENCODED UPI URI
   let upi = "upi://pay?";
-  for (let k in upiParams) {
-    upi += k + "=" + encodeURIComponent(upiParams[k]) + "&";
-  }
+  Object.keys(params).forEach(key => {
+    upi += key + "=" + encodeURIComponent(params[key]) + "&";
+  });
 
-  document.getElementById("payBtn").href = upi.slice(0, -1);
+  upi = upi.slice(0, -1); // remove last &
+
+  // 🔥 SET DIRECT HREF (IMPORTANT)
+  document.getElementById("payBtn").setAttribute("href", upi);
+
 })();
 </script>
 
