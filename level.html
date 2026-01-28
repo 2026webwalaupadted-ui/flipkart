@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Chat & Pay with Amount</title>
+<title>Chat & Pay with Prefilled Amount</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; }
@@ -16,9 +16,9 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 .pay-option img { width: 32px; height: 32px; object-fit: contain; }
 .pay-option.selected { border-color: #2874f0; background: #f0f7ff; }
 .info-text { font-size: 14px; color: #555; margin: 16px 0; text-align: center; padding: 0 16px; }
-.amount-display { font-size: 24px; font-weight: bold; color: #0ba35d; text-align: center; margin: 20px 0; }
+.amount-display { font-size: 28px; font-weight: bold; color: #fb641b; text-align: center; margin: 20px 0; background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
 .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 16px; box-shadow: 0 -2px 8px rgba(0,0,0,.1); text-align: center; }
-.btn { background: #0ba35d; color: #fff; border: none; padding: 16px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; max-width: 500px; }
+.btn { background: #fb641b; color: #fff; border: none; padding: 16px; font-size: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; max-width: 500px; }
 .copy-btn { background: #2874f0; color: white; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; margin-top: 12px; }
 </style>
 </head>
@@ -27,7 +27,7 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 <div class="header">
   <div class="header-top">
     <div class="back-arrow" onclick="history.back()"></div>
-    <strong>Chat & Pay with Amount</strong>
+    <strong>Pay with Chat & Amount</strong>
   </div>
 </div>
 
@@ -37,7 +37,7 @@ body { background: #f1f3f6; padding-bottom: 140px; }
   <p>Loading product (reference)...</p>
 </div>
 
-<div class="amount-display" id="amountDisplay">₹499</div> <!-- Example amount - change in script -->
+<div class="amount-display" id="amountDisplay">₹499</div>
 
 <div class="card">
   <h4>Pay To</h4>
@@ -49,7 +49,7 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 </div>
 
 <div class="card">
-  <h4>Select App</h4>
+  <h4>Select App (Paytm best for chat warning)</h4>
   <div class="pay-option selected" data-method="paytm">
     <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Paytm_Logo_%28standalone%29.svg" alt="Paytm"> Paytm
   </div>
@@ -62,30 +62,31 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 </div>
 
 <div class="info-text">
-  Amount pre-filled hoga app mein. Agar "Number not in contact" warning aaya to "Continue to chat & pay" pe click karo.<br>
-  Agar warning nahi aata, VPA app se delete kar ke fir try karo.
+  Amount app mein pre-filled hoga.<br>
+  Agar warning ("Number not in contact") aata hai to "Continue to chat & pay" dikhega.<br>
+  Warning nahi aaye to: Paytm kholo → UPI ID search → agar save hai to delete karo → fir try karo.
 </div>
 
 <div class="bottom-bar">
-  <button class="btn" id="payBtn">Pay with Chat & Pay (Amount Filled)</button>
+  <button class="btn" id="payBtn">Open App with Amount & Chat</button>
 </div>
 
 <script>
 // Config
-const UPI_ID = "paytm.s1xjfgt@pty"; // Change if needed
+const UPI_ID = "paytm.s1xjfgt@pty"; // Your VPA
 const PAYEE_NAME = "Shyam Veer Baking";
-const AMOUNT = 499; // Change this to your desired amount
+const AMOUNT = 499; // Default amount - product se update hoga
 let selectedMethod = "paytm";
 
-// Set amount display
+// Amount display
 document.getElementById("amountDisplay").textContent = "₹" + AMOUNT;
 
-// Copy function
+// Copy UPI
 function copyUpi() {
-  navigator.clipboard.writeText(UPI_ID).then(() => alert("Copied! Paste in Paytm."));
+  navigator.clipboard.writeText(UPI_ID).then(() => alert("UPI ID copied! Paste in app."));
 }
 
-// Product load (optional)
+// Product load & amount update
 const qs = k => new URLSearchParams(location.search).get(k);
 async function loadProduct() {
   try {
@@ -96,21 +97,20 @@ async function loadProduct() {
       const price = Number(p.discounted_price || p.price || AMOUNT);
       document.getElementById("amountDisplay").textContent = "₹" + price;
       document.getElementById("productCard").innerHTML = `
-        <div style="display:flex; gap:12px;">
+        <div style="display:flex; gap:12px; align-items:center;">
           <img src="${p.main_image || p.image || 'https://via.placeholder.com/80'}" style="width:80px;height:80px;object-fit:contain;border:1px solid #eee;border-radius:8px;">
           <div>
-            <strong>${p.name || "Item"}</strong><br>
-            Amount: ₹${price}
+            <strong>${p.name || "Product"}</strong><br>
+            ₹${price}
           </div>
         </div>`;
-      // Update global amount
       window.currentAmount = price;
     }
   } catch(e) {}
 }
 loadProduct();
 
-// Method select
+// Select app
 document.querySelectorAll(".pay-option").forEach(opt => {
   opt.onclick = () => {
     document.querySelectorAll(".pay-option").forEach(o => o.classList.remove("selected"));
@@ -119,11 +119,11 @@ document.querySelectorAll(".pay-option").forEach(opt => {
   };
 });
 
-// Pay function - Amount pre-filled + P2P params for warning
+// Open app
 function tryOpenApp() {
   const amount = window.currentAmount || AMOUNT;
   const txn = "TXN" + Date.now();
-  const note = "Payment for Shyam Veer Baking";
+  const note = "Order for Shyam Veer Baking";
 
   const params = [
     `pa=${encodeURIComponent(UPI_ID)}`,
@@ -133,7 +133,7 @@ function tryOpenApp() {
     `tr=${encodeURIComponent(txn)}`,
     `tn=${encodeURIComponent(note)}`,
     `mode=02`,
-    `purpose=00`  // P2P to try warning trigger
+    `purpose=00`
   ].join("&");
 
   let scheme = "upi://pay?";
@@ -142,15 +142,15 @@ function tryOpenApp() {
   else if (selectedMethod === "gpay") scheme = "tez://upi/pay?";
 
   const url = scheme + params;
-  console.log("Launching with amount:", url);
+  console.log("Launching URL with amount:", url);
 
   window.location = url;
 
   setTimeout(() => {
     if (document.hasFocus()) {
-      alert("App nahi khula ya chat screen nahi aaya?\n\n1. VPA contacts mein save nahi hai na?\n2. App update/restart karo\n3. Manual copy-paste try karo\n4. Console (F12) se URL copy karke batao");
+      alert("App nahi khula ya chat warning nahi aaya?\n1. VPA contacts mein save nahi hai?\n2. Paytm update/restart karo\n3. VPA search kar ke delete karo agar pehle save ho\n4. Console (F12 > Console) mein URL copy karke mujhe batao\n5. Manual try: Copy UPI ID aur Paytm mein paste karo");
     }
-  }, 6000);
+  }, 8000);
 }
 
 document.getElementById("payBtn").onclick = tryOpenApp;
