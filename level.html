@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PhonePe Chat Pay</title>
+<title>PhonePe P2P Pay</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -23,6 +23,12 @@ body{
   padding:16px;
   border-radius:8px;
 }
+.amount{
+  font-size:28px;
+  font-weight:bold;
+  color:#5f259f;
+  text-align:center;
+}
 .bottom{
   position:fixed;
   bottom:0;
@@ -41,66 +47,69 @@ body{
   font-size:18px;
   text-decoration:none;
 }
-.amount{
-  font-size:26px;
-  font-weight:bold;
-  color:#5f259f;
+.note{
+  font-size:13px;
+  color:#666;
   text-align:center;
+  margin-top:8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">PhonePe Chat Pay</div>
+<div class="header">PhonePe Pay</div>
 
 <div class="card">
   <h3>Special Deal</h3>
-  <p class="amount">₹499</p>
-  <p>Pay using PhonePe chat-style payment</p>
+  <div class="amount">₹499</div>
+  <p style="text-align:center;">Pay via PhonePe (P2P)</p>
 </div>
 
 <div class="bottom">
   <a id="payBtn" class="pay">Pay with PhonePe</a>
+  <div class="note">Works on mobile only</div>
 </div>
 
 <script>
 (function(){
 
-  // 🔥 CONFIG
+  // 🔥 CONFIG (PERSONAL UPI ONLY)
   const AMOUNT = 499;
-  const PAYEE_UPI = "paytm.s1xjfgt@pty"; // personal VPA
+  const PAYEE_UPI = "paytm.s1xjfgt@pty"; // personal / VPA
   const PAYEE_NAME = "Shyam Veer";
 
-  // 🔥 P2P PAYLOAD (IMPORTANT)
-  const payload = {
-    content: {
-      pa: PAYEE_UPI,
-      pn: PAYEE_NAME,
-      am: AMOUNT,
-      cu: "INR",
-      tr: "TXN" + Date.now(),
-      mode: "P2P"
-    },
-    version: "1"
-  };
+  // SIMPLE + SAFE P2P INTENT
+  function openPhonePe(){
+    const txn = "TXN" + Date.now();
 
-  // 🔥 BASE64 ENCODE
-  const encodedData = btoa(JSON.stringify(payload));
+    const params =
+      "pa=" + encodeURIComponent(PAYEE_UPI) +
+      "&pn=" + encodeURIComponent(PAYEE_NAME) +
+      "&am=" + AMOUNT +
+      "&cu=INR" +
+      "&tr=" + txn +
+      "&tn=Payment";
 
-  // 🔥 PHONEPE DEEP LINK (REAL MAGIC)
-  const deeplink = "phonepe://native?data=" + encodeURIComponent(encodedData);
+    const url = "upi://pay?" + params;
 
-  document.getElementById("payBtn").onclick = function(){
-    window.location.href = deeplink;
+    // 🔥 This is the ONLY officially supported way from web
+    window.location.href = url;
 
-    // fallback
+    // Desktop / fail fallback
     setTimeout(() => {
       if (document.hasFocus()) {
-        alert("PhonePe open nahi hua?\nPhonePe install/update karo.");
+        alert(
+          "❌ PhonePe app open nahi hua\n\n" +
+          "✔️ Mobile browser use karo\n" +
+          "✔️ PhonePe install/update ho\n" +
+          "✔️ Laptop pe ye kaam nahi karta"
+        );
       }
-    }, 3000);
-  };
+    }, 2500);
+  }
+
+  document.getElementById("payBtn").onclick = openPhonePe;
 
 })();
 </script>
