@@ -81,27 +81,24 @@ const UPI_API = "https://flipback-production.up.railway.app/api/upi";
 let productPrice = 0;
 let upiId = "";
 let selectedMethod = "phonepe";
-let payeeName = "Shyam Veer Baking";  // Receiver name for P2P display
+let payeeName = "Shyam Veer Baking";
 let transactionRef = "P2P" + Date.now();
 
 const qs = k => new URLSearchParams(location.search).get(k);
 
-// Fetch UPI ID - MUST BE PERSONAL VPA for true P2P/chat style
 fetch(UPI_API)
   .then(r => r.json())
   .then(d => {
     upiId = d?.data?.upi_id || d?.upi_id || "";
-    console.log("Loaded UPI ID:", upiId);  // Check if it's personal like @ybl or @paytm, not @pty merchant
+    console.log("Loaded UPI ID (must be PERSONAL for P2P):", upiId);
   });
 
-// Load product & set dynamic note
 async function loadProduct(){
   const r = await fetch(PRODUCTS_API);
   const d = await r.json();
   const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
   if (p) {
     productPrice = Number(p.discounted_price || p.price || 0);
-    const productName = p.name || "Product";  // Assume product has 'name' field, or adjust
 
     productCard.innerHTML = `
       <div class="product-row">
@@ -112,16 +109,12 @@ async function loadProduct(){
     price.innerText = total.innerText = bottomAmount.innerText = "₹" + productPrice;
 
     payBtn.disabled = false;
-
-    // Dynamic transaction note like your screenshot example
-    transactionNote = productName + " Payment";  // e.g., "MILTON Euroline Combo Set Go E"
-    transactionRef = "P2P" + Date.now();
+    transactionRef = "P2P" + Date.now();  // Refresh ref
   } else {
     productCard.innerHTML = "<p>Product not found</p>";
   }
 }
 
-// Method select
 document.querySelectorAll(".pay-option").forEach(p=>{
   p.onclick = ()=>{
     document.querySelectorAll(".pay-option").forEach(x=>x.classList.remove("selected"));
@@ -130,28 +123,29 @@ document.querySelectorAll(".pay-option").forEach(p=>{
   };
 });
 
-// Pay function - Minimal params for P2P/chat style (no mc, mode, sign)
+// Pay - Minimal params, NO tn (no message), no mode/mc/sign
 function payNow(){
-  if(!upiId) return alert("UPI ID not loaded. Refresh page.");
+  if(!upiId) return alert("UPI ID not loaded yet. Refresh.");
   if(productPrice <= 0) return alert("Invalid amount");
 
-  const params = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tn=${encodeURIComponent(transactionNote)}&tr=${encodeURIComponent(transactionRef)}`;
+  const params = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(payeeName)}&am=${productPrice}&cu=INR&tr=${encodeURIComponent(transactionRef)}`;
 
-  let url = `upi://pay?${params}`;  // Generic upi:// for best P2P compatibility across apps
+  // Generic upi:// first for best P2P compatibility
+  let url = `upi://pay?${params}`;
 
-  // Optional: Try specific scheme first for better opening
+  // Try app-specific if selected
   if(selectedMethod === "phonepe") url = `phonepe://pay?${params}`;
   else if(selectedMethod === "paytm") url = `paytmmp://pay?${params}`;
   else if(selectedMethod === "gpay") url = `tez://upi/pay?${params}`;
 
-  console.log("P2P/Chat Style UPI Link:", url);  // Open console (F12) to copy-paste test
+  console.log("Generated P2P UPI Link (copy this to test):", url);
 
   window.location.href = url;
 
-  // Fallback if app doesn't open (shows alert like screenshot warning)
+  // Fallback alert
   setTimeout(() => {
     if (document.hasFocus()) {
-      alert("If payment screen didn't open properly:\n1. Ensure UPI app is installed & updated.\n2. Use personal VPA (not merchant).\n3. Try generic link from console.");
+      alert("Payment screen nahi khula? \n1. Personal VPA use kar (merchant nahi).\n2. UPI app update kar.\n3. Console se link copy karke browser mein paste try kar.");
     }
   }, 3000);
 }
