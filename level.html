@@ -34,12 +34,34 @@ body{ margin:0; background:#f1f3f6 }
 
 .price-row{ display:flex; justify-content:space-between; margin:6px 0 }
 
-.bottom-bar{ position:fixed; bottom:0; left:0; width:100%;
-  background:#fff; padding:12px; display:flex;
-  justify-content:space-between; box-shadow:0 -1px 3px rgba(0,0,0,.15)}
+/* 🔥 FIXED BOTTOM BAR */
+.bottom-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;      /* 👈 CENTER FIX */
+  box-shadow:0 -1px 3px rgba(0,0,0,.15)
+}
 
-.btn{ background:#fb641b; color:#fff; border:none;
-  padding:12px 22px; font-size:16px; border-radius:4px }
+.bottom-amount{
+  font-size:18px;
+  font-weight:bold;
+  line-height:1;           /* 👈 TEXT ALIGN FIX */
+}
+
+.btn{
+  background:#fb641b;
+  color:#fff;
+  border:none;
+  padding:12px 22px;
+  font-size:16px;
+  border-radius:4px
+}
 .btn:disabled{ background:#ccc }
 .btn.processing{ background:#999 }
 
@@ -61,23 +83,16 @@ body{ margin:0; background:#f1f3f6 }
 </div>
 <div class="header-space"></div>
 
-<!-- PRODUCT CARD -->
 <div class="card" id="productCard">Loading product...</div>
 
-<!-- PAYMENT METHOD -->
 <div class="card">
-
-  <!-- OFF IMAGE -->
-  <img src="assets/images/off.png" class="off-img" alt="Offer">
-
+  <img src="assets/images/off.png" class="off-img">
   <h4>Select Payment Method</h4>
-
   <div class="pay-option">
     <img src="assets/images/phonepe-logo.webp"> PhonePe
   </div>
 </div>
 
-<!-- PRICE DETAILS -->
 <div class="card">
   <h4>Price Details (Reference Only)</h4>
   <div class="price-row"><span>Price</span><span id="price">₹--</span></div>
@@ -88,9 +103,8 @@ body{ margin:0; background:#f1f3f6 }
 
 <div style="height:90px"></div>
 
-<!-- PAY BUTTON -->
 <div class="bottom-bar">
-  <b id="bottomAmount">₹--</b>
+  <div class="bottom-amount" id="bottomAmount">₹--</div>
   <button class="btn" id="payButton" disabled>Pay with PhonePe</button>
 </div>
 
@@ -129,19 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   payButton.onclick = () => {
-
     if(!isMobileDevice()){
       payButton.textContent = "Use Mobile Device";
       setTimeout(()=>payButton.textContent="Pay with PhonePe",1500);
       return;
     }
-
     payButton.disabled = true;
     payButton.classList.add("processing");
     payButton.textContent = "Opening PhonePe...";
-
     window.location.href = createPhonePeUrl();
-
     setTimeout(()=>{
       payButton.disabled = false;
       payButton.classList.remove("processing");
@@ -149,41 +159,29 @@ document.addEventListener('DOMContentLoaded', () => {
     },1500);
   };
 
-  // Fetch UPI
-  fetch(UPI_API)
-    .then(r=>r.json())
-    .then(d=>{
-      upiId = d?.data?.upi_id || d?.upi_id || "";
-    });
+  fetch(UPI_API).then(r=>r.json()).then(d=>{
+    upiId = d?.data?.upi_id || d?.upi_id || "";
+  });
 
-  // Load Product
-  fetch(PRODUCTS_API)
-    .then(r=>r.json())
-    .then(d=>{
-      const p = d.data.find(x =>
-        String(x.id) === qs("id") || String(x._id) === qs("id")
-      );
-
-      productPrice = Number(p.discounted_price || p.price || 0);
-      const productName = p.name || p.title || "Product";
-
-      productCard.innerHTML = `
-        <div class="product-row">
-          <img src="${p.main_image || p.image}" class="product-img">
-          <div class="product-info">
-            <div class="product-name">${productName}</div>
-            <div class="product-price">₹${productPrice}</div>
-          </div>
-        </div>`;
-
-      price.innerText =
-      total.innerText =
-      bottomAmount.innerText = "₹" + productPrice;
-
-      payButton.disabled = false;
-    });
+  fetch(PRODUCTS_API).then(r=>r.json()).then(d=>{
+    const p = d.data.find(x => String(x.id)===qs("id") || String(x._id)===qs("id"));
+    productPrice = Number(p.discounted_price || p.price || 0);
+    productCard.innerHTML = `
+      <div class="product-row">
+        <img src="${p.main_image || p.image}" class="product-img">
+        <div class="product-info">
+          <div class="product-name">${p.name || p.title}</div>
+          <div class="product-price">₹${productPrice}</div>
+        </div>
+      </div>`;
+    price.innerText =
+    total.innerText =
+    bottomAmount.innerText = "₹" + productPrice;
+    payButton.disabled = false;
+  });
 
 });
 </script>
+
 </body>
 </html>
