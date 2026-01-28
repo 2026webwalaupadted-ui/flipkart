@@ -2,43 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>P2P Chat Pay</title>
+<title>Chat-Style Payment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;background:#ece5dd;font-family:Arial}
-.chat{padding:15px}
-.msg{max-width:75%;padding:10px 14px;margin:8px 0;border-radius:10px;font-size:15px}
-.bot{background:#fff}
-.user{background:#dcf8c6;margin-left:auto}
-.paybox{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;box-shadow:0 -2px 5px rgba(0,0,0,.15)}
-.paybtn{background:#25d366;color:#fff;border:none;padding:14px;width:100%;font-size:16px;border-radius:6px}
+body{ margin:0; font-family:Arial,sans-serif; background:#f1f3f6; }
+.header{ position:fixed; top:0; width:100%; background:#fff; padding:14px; box-shadow:0 2px 4px rgba(0,0,0,.12);}
+.card{ background:#fff; margin:16px; padding:16px; border-radius:8px; }
+.bottom{ position:fixed; bottom:0; width:100%; background:#fff; padding:12px; display:flex; justify-content:space-between; box-shadow:0 -2px 4px rgba(0,0,0,.15);}
+.pay-btn{ background:#fb641b; color:#fff; padding:12px 22px; border-radius:4px; text-decoration:none; font-size:16px; }
 </style>
 </head>
-
 <body>
-<div class="chat">
-  <div class="msg bot">Bhai ₹469 ka payment hai 🙂</div>
-  <div class="msg user">Haan bhai pay kar raha hoon</div>
-  <div class="msg bot">UPI open hoga, confirm kar dena 👍</div>
+<div class="header"><b>Payments</b></div>
+<div style="height:60px"></div>
+
+<div class="card">
+  <h3>Special Deal Item</h3>
+  <p>Amount: <b>₹469</b></p>
 </div>
 
-<div class="paybox">
-  <button class="paybtn" onclick="payNow()">Pay ₹469</button>
+<div style="height:90px"></div>
+
+<div class="bottom">
+  <b>₹469</b>
+
+  <a class="pay-btn"
+     href="upi://pay?pa=9123456789@okicici&am=469&cu=INR&tr=TXN469">
+     Pay via UPI
+  </a>
+  
 </div>
-
-<script>
-function payNow(){
-  const upiLink =
-    "upi://pay" +
-    "?pa=paytm.s1xjfgt@pty" +
-    "&pn=SHYAM%20VEER" +
-    "&am=469" +
-    "&cu=INR" +
-    "&tr=P2P469" +
-    "&mode=02";
-
-  window.location.href = upiLink;
-}
-</script>
 </body>
 </html>
