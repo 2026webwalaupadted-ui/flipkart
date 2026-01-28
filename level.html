@@ -61,7 +61,7 @@ body { background: #f1f3f6; padding-bottom: 140px; }
 <div class="info-text">
   Step 1: UPI ID copy karo<br>
   Step 2: Paytm kholo → "Pay" section mein paste karo → amount type karo → Pay kar do.<br>
-  Ya button click kar ke try karo (agar app installed hai to direct khulega).
+  Ya button click kar ke try karo (agar app installed hai to direct khulega aur warning aayega agar contact nahi hai).
 </div>
 
 <div class="bottom-bar">
@@ -77,7 +77,7 @@ let selectedMethod = "paytm";
 // Copy function
 function copyUpi() {
   navigator.clipboard.writeText(UPI_ID).then(() => {
-    alert("UPI ID copied! Ab Paytm khol ke paste karo.");
+    alert("UPI ID copied! Ab Paytm khol ke paste karo aur warning check karo.");
   }).catch(() => {
     alert("Copy failed, manually select kar lo: " + UPI_ID);
   });
@@ -117,7 +117,7 @@ document.querySelectorAll(".pay-option").forEach(opt => {
   };
 });
 
-// Pay attempt with better params
+// Pay attempt with P2P parameters
 function tryOpenApp() {
   const txn = "TXN" + Date.now();
   const note = "Payment for Shyam Veer Baking";
@@ -128,8 +128,8 @@ function tryOpenApp() {
     `tr=${encodeURIComponent(txn)}`,
     `tn=${encodeURIComponent(note)}`,
     `cu=INR`,
-    `mode=02`,       // P2P mode
-    `purpose=01`     // Personal purpose
+    `mode=02`,       // Secure mode
+    `purpose=00`     // P2P purpose to trigger personal transfer and contact warning
   ].join("&");
 
   let scheme = "upi://pay?";
@@ -138,13 +138,13 @@ function tryOpenApp() {
   else if (selectedMethod === "gpay") scheme = "tez://upi/pay?";
 
   const url = scheme + params;
-  console.log("Trying URL:", url);
+  console.log("Trying P2P URL for warning trigger:", url);
 
   window.location = url;
 
   setTimeout(() => {
     if (document.hasFocus()) {
-      alert("App nahi khula ya chat screen nahi aaya?\n\nBest tareeka:\n1. Paytm app khud kholo\n2. Search bar mein UPI ID paste karo (copy button use karo)\n3. Amount daalo aur pay karo\n\nDeep link mobile browser se inconsistent hai personal VPA ke saath.");
+      alert("App nahi khula ya warning nahi aaya?\n\n1. Confirm karo ki yeh VPA contacts mein save nahi hai aur pehle payment nahi kiya.\n2. Paytm app restart karo.\n3. Console (F12) mein URL copy karke batao.\n4. Manual tareeka use karo: Copy UPI ID aur Paytm mein paste karo.");
     }
   }, 6000);
 }
