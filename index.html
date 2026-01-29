@@ -468,35 +468,6 @@ body{
     font-size: 16px;
 }
 
-.connection-warning {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 15px;
-    margin: 10px;
-    background: #fff8e6;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    color: #856404;
-    font-size: 14px;
-    display: none;
-}
-
-.connection-warning.show {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-.retry-button {
-    background: #2874f0;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    margin-top: 10px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -580,36 +551,6 @@ body{
     100%{left:100%;}
 }
 
-.network-status {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    z-index: 1000;
-    display: none;
-    animation: slideIn 0.3s ease;
-}
-
-.network-status.online {
-    background: #28a745;
-    color: white;
-    display: block;
-}
-
-.network-status.offline {
-    background: #dc3545;
-    color: white;
-    display: block;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
 .error-container {
     grid-column: 1 / -1;
     text-align: center;
@@ -643,11 +584,110 @@ body{
     color: #666;
     grid-column: 1 / -1;
 }
+
+/* Flipkart Style Small Loading Progress Bar */
+.flipkart-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.flipkart-loader.show {
+    opacity: 1;
+}
+
+.flipkart-loader .progress {
+    height: 100%;
+    width: 0%;
+    background: #ff9f00;
+    position: relative;
+    overflow: hidden;
+}
+
+.flipkart-loader .progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #2874f0 25%, 
+        #ff9f00 50%, 
+        #2874f0 75%, 
+        transparent 100%);
+    animation: flipkart-shimmer 1.5s infinite linear;
+}
+
+@keyframes flipkart-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Minimal Loader */
+.minimal-loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+.minimal-loader div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    margin: 2px;
+    border: 2px solid #2874f0;
+    border-radius: 50%;
+    animation: minimal-loader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #2874f0 transparent transparent transparent;
+}
+
+.minimal-loader div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+
+.minimal-loader div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.minimal-loader div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+
+@keyframes minimal-loader {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Skeleton Loading Enhancements */
+.skeleton-pulse {
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
 </style>
 </head>
 <body>
 
-<div id="networkStatus" class="network-status"></div>
+<!-- Flipkart Style Small Loading Progress Bar -->
+<div class="flipkart-loader" id="flipkartLoader">
+    <div class="progress" id="progressBar"></div>
+</div>
 
 <div class="top-space"></div>
 <div class="top-image">
@@ -701,49 +741,44 @@ body{
     <div class="countdown-subtitle">Hurry! Deals are selling out fast</div>
 </div>
 
-<div id="connectionWarning" class="connection-warning">
-    <div> Slow network detected. Loading optimized version...</div>
-    <button id="retryButton" class="retry-button">Retry Loading</button>
-</div>
-
 <div class="product-section">
     <div class="product-grid" id="productGrid">
-        <div class="skeleton-card">
+        <div class="skeleton-card skeleton-pulse">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
                 <div class="skeleton-title"></div>
                 <div class="skeleton-price"></div>
             </div>
         </div>
-        <div class="skeleton-card">
+        <div class="skeleton-card skeleton-pulse">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
                 <div class="skeleton-title"></div>
                 <div class="skeleton-price"></div>
             </div>
         </div>
-        <div class="skeleton-card">
+        <div class="skeleton-card skeleton-pulse">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
                 <div class="skeleton-title"></div>
                 <div class="skeleton-price"></div>
             </div>
         </div>
-        <div class="skeleton-card">
+        <div class="skeleton-card skeleton-pulse">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
                 <div class="skeleton-title"></div>
                 <div class="skeleton-price"></div>
             </div>
         </div>
-        <div class="skeleton-card">
+        <div class="skeleton-card skeleton-pulse">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
                 <div class="skeleton-title"></div>
                 <div class="skeleton-price"></div>
             </div>
         </div>
-        <div class="skeleton-card">
+        <div class="skeleton-card skeleton-pulse">
             <div class="skeleton-img"></div>
             <div class="skeleton-content">
                 <div class="skeleton-title"></div>
@@ -752,95 +787,60 @@ body{
         </div>
     </div>
     <div class="load-more-btn" id="loadMoreBtn" style="display: none;">
-        <button id="loadMoreButton">Next</button>
+        <button id="loadMoreButton">
+            <span id="loadMoreText">Next</span>
+        </button>
     </div>
     <div id="loadMoreStatus" class="load-more-status" style="display: none;"></div>
 </div>
 
 <div class="footer">
     <p>© 2024 Big Billion Days. All rights reserved.</p>
-
 </div>
+
 <script>
-class NetworkManager {
+class LoaderManager {
     constructor() {
-        this.isOnline = navigator.onLine;
-        this.slowConnection = false;
-        this.retryCount = 0;
-        this.maxRetries = 3;
-        this.requestTimeout = 10000;
-        
-        this.initNetworkListeners();
+        this.flipkartLoader = document.getElementById('flipkartLoader');
+        this.progressBar = document.getElementById('progressBar');
+        this.progressInterval = null;
     }
     
-    initNetworkListeners() {
-        window.addEventListener('online', () => this.handleOnline());
-        window.addEventListener('offline', () => this.handleOffline());
+    show() {
+        this.flipkartLoader.classList.add('show');
+        this.progressBar.style.width = '30%';
         
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (connection) {
-            this.slowConnection = connection.effectiveType === 'slow-2g' || 
-                                 connection.effectiveType === '2g' ||
-                                 connection.downlink < 1;
-            
-            connection.addEventListener('change', () => {
-                this.slowConnection = connection.effectiveType === 'slow-2g' || 
-                                     connection.effectiveType === '2g' ||
-                                     connection.downlink < 1;
-                this.updateNetworkStatus();
-            });
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
         }
-    }
-    
-    handleOnline() {
-        this.isOnline = true;
-        this.updateNetworkStatus();
-        console.log('Network: Online');
-    }
-    
-    handleOffline() {
-        this.isOnline = false;
-        this.updateNetworkStatus();
-        console.log('Network: Offline');
         
-        this.showConnectionWarning('You are offline. Please check your internet connection.');
+        this.progressInterval = setInterval(() => {
+            const currentWidth = parseFloat(this.progressBar.style.width) || 30;
+            const newWidth = Math.min(currentWidth + 10, 90);
+            this.progressBar.style.width = newWidth + '%';
+        }, 500);
     }
     
-    updateNetworkStatus() {
-        const statusEl = document.getElementById('networkStatus');
-        if (!statusEl) return;
-        
-        if (this.isOnline) {
-            statusEl.textContent = this.slowConnection ? ' Slow Connection' : ' Online';
-            statusEl.className = 'network-status online';
-            
-            if (this.slowConnection) {
-                this.showConnectionWarning('Slow network detected. Loading optimized content...');
-            } else {
-                this.hideConnectionWarning();
-            }
-        } else {
-            statusEl.textContent = ' Offline';
-            statusEl.className = 'network-status offline';
+    complete() {
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
         }
+        
+        this.progressBar.style.width = '100%';
         
         setTimeout(() => {
-            statusEl.style.display = 'none';
-        }, 3000);
+            this.flipkartLoader.classList.remove('show');
+            this.progressBar.style.width = '0%';
+        }, 300);
     }
     
-    showConnectionWarning(message) {
-        const warning = document.getElementById('connectionWarning');
-        if (warning) {
-            warning.querySelector('div').textContent = message;
-            warning.classList.add('show');
-        }
-    }
-    
-    hideConnectionWarning() {
-        const warning = document.getElementById('connectionWarning');
-        if (warning) {
-            warning.classList.remove('show');
+    hide() {
+        this.flipkartLoader.classList.remove('show');
+        this.progressBar.style.width = '0%';
+        
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
         }
     }
 }
@@ -851,13 +851,14 @@ class ProductManager {
         this.productGrid = document.getElementById("productGrid");
         this.loadMoreBtn = document.getElementById("loadMoreBtn");
         this.loadMoreButton = document.getElementById("loadMoreButton");
+        this.loadMoreText = document.getElementById("loadMoreText");
         this.loadMoreStatus = document.getElementById("loadMoreStatus");
+        this.loaderManager = new LoaderManager();
         
         this.allProducts = [];
         this.displayedProducts = 0;
         this.productsPerPage = 6;
         this.isLoading = false;
-        this.networkManager = new NetworkManager();
         
         this.cacheKey = 'flipkart_products_cache';
         this.cacheExpiry = 5 * 60 * 1000;
@@ -935,11 +936,13 @@ class ProductManager {
         if (this.isLoading) return;
         
         this.isLoading = true;
+        this.loaderManager.show();
         
         const cachedProducts = this.getCachedProducts();
         if (cachedProducts) {
             this.allProducts = cachedProducts;
             this.displayNextProducts();
+            this.loaderManager.complete();
             
             this.fetchFreshProducts();
             return;
@@ -950,10 +953,8 @@ class ProductManager {
     
     async fetchProducts() {
         try {
-            this.networkManager.showConnectionWarning('Loading products...');
-            
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
             
             const response = await fetch(this.API_URL, {
                 method: 'GET',
@@ -973,7 +974,6 @@ class ProductManager {
             }
             
             const data = await response.json();
-            
             this.productGrid.innerHTML = '';
             
             if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
@@ -983,11 +983,8 @@ class ProductManager {
                 }));
                 
                 this.cacheProducts(this.allProducts);
-                
                 this.displayedProducts = 0;
-                
                 this.displayNextProducts();
-                this.networkManager.hideConnectionWarning();
                 
             } else if (data && Array.isArray(data) && data.length > 0) {
                 this.allProducts = data.map((item, index) => ({
@@ -998,7 +995,6 @@ class ProductManager {
                 this.cacheProducts(this.allProducts);
                 this.displayedProducts = 0;
                 this.displayNextProducts();
-                this.networkManager.hideConnectionWarning();
                 
             } else {
                 this.showNoProducts();
@@ -1012,12 +1008,12 @@ class ProductManager {
                 this.allProducts = cachedProducts;
                 this.displayedProducts = 0;
                 this.displayNextProducts();
-                this.networkManager.showConnectionWarning('Showing cached data. Network seems slow.');
             } else {
                 this.showError(error);
             }
             
         } finally {
+            this.loaderManager.complete();
             this.isLoading = false;
         }
     }
@@ -1049,8 +1045,6 @@ class ProductManager {
     }
     
     displayNextProducts() {
-        console.log(`Displaying products. Total: ${this.allProducts.length}, Displayed: ${this.displayedProducts}`);
-        
         if (this.allProducts.length === 0) {
             this.showNoProducts();
             return;
@@ -1058,8 +1052,6 @@ class ProductManager {
         
         const startIndex = this.displayedProducts;
         const endIndex = Math.min(startIndex + this.productsPerPage, this.allProducts.length);
-        
-        console.log(`Displaying ${startIndex} to ${endIndex} (${endIndex - startIndex} products)`);
         
         if (startIndex === 0) {
             this.productGrid.innerHTML = '';
@@ -1070,10 +1062,7 @@ class ProductManager {
         for (let i = startIndex; i < endIndex; i++) {
             const product = this.allProducts[i];
             
-            if (!product) {
-                console.warn(`No product at index ${i}`);
-                continue;
-            }
+            if (!product) continue;
             
             const cardHtml = this.createProductCard(product);
             
@@ -1099,8 +1088,6 @@ class ProductManager {
         this.productGrid.appendChild(fragment);
         this.displayedProducts = endIndex;
         
-        console.log(`Now displayed: ${this.displayedProducts} out of ${this.allProducts.length}`);
-        
         this.updateLoadMoreButton();
     }
     
@@ -1110,7 +1097,7 @@ class ProductManager {
         if (remainingProducts > 0) {
             this.loadMoreBtn.style.display = 'block';
             this.loadMoreButton.disabled = false;
-            this.loadMoreButton.textContent = 'Next'; 
+            this.loadMoreText.textContent = 'Next'; 
             this.loadMoreStatus.style.display = 'none';
         } else {
             this.loadMoreBtn.style.display = 'none';
@@ -1120,28 +1107,16 @@ class ProductManager {
     }
     
     handleLoadMore() {
-        console.log('Next clicked');
-        
-        if (this.isLoading) {
-            console.log('Already loading...');
-            return;
-        }
-        
-        if (this.displayedProducts >= this.allProducts.length) {
-            console.log('No more products to load');
-            this.updateLoadMoreButton();
-            return;
-        }
+        if (this.isLoading || this.displayedProducts >= this.allProducts.length) return;
         
         this.loadMoreButton.disabled = true;
-        this.loadMoreButton.innerHTML = '<span class="loader"></span> Loading...';
-    
+        this.loadMoreText.innerHTML = '<div class="minimal-loader"><div></div><div></div><div></div><div></div></div> Loading...';
+        
         setTimeout(() => {
             this.displayNextProducts();
-            
             this.loadMoreButton.disabled = false;
-            this.loadMoreButton.textContent = 'Next'; 
-        }, 500);
+            this.loadMoreText.textContent = 'Next';
+        }, 300);
     }
     
     lazyLoadImage(imgElement) {
@@ -1149,7 +1124,6 @@ class ProductManager {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    
                     const src = img.getAttribute('data-src') || img.src;
                     
                     const tempImg = new Image();
@@ -1168,9 +1142,7 @@ class ProductManager {
                     observer.unobserve(img);
                 }
             });
-        }, {
-            rootMargin: '50px'
-        });
+        }, { rootMargin: '50px' });
         
         observer.observe(imgElement);
     }
@@ -1298,11 +1270,11 @@ class ProductManager {
     }
 }
 
+// Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const productManager = new ProductManager();
     
-    productManager.loadInitialProducts();
-    
+    // Countdown Timer
     function updateCountdownTimer() {
         const hoursElement = document.getElementById('hours');
         const minutesElement = document.getElementById('minutes');
@@ -1344,6 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const timerInterval = setInterval(updateCountdownTimer, 1000);
     
+    // Promo Slider
     const slider = document.getElementById("slider");
     const dots = document.querySelectorAll(".dot");
     const slides = document.querySelectorAll(".promo-card");
@@ -1370,11 +1343,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if(dots[index]) dots[index].classList.add("active");
     });
     
+    // Location selection
     document.querySelector('.select-location').addEventListener('click', function(event) {
         event.preventDefault();
         window.location.href = 'address.html';
     });
     
+    // Search functionality
     const searchInput = document.getElementById('searchInput');
     let searchTimeout;
     
@@ -1434,10 +1409,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     });
     
-    document.getElementById('retryButton')?.addEventListener('click', () => {
-        productManager.loadInitialProducts();
-    });
+    // Load initial products
+    productManager.loadInitialProducts();
     
+    // Refresh products when tab becomes visible
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
             const cacheTime = localStorage.getItem('flipkart_products_cache_timestamp');
@@ -1447,28 +1422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    window.addEventListener('offline', () => {
-        const networkStatus = document.getElementById('networkStatus');
-        if (networkStatus) {
-            networkStatus.textContent = ' Offline';
-            networkStatus.className = 'network-status offline';
-            networkStatus.style.display = 'block';
-        }
-    });
-    
-    window.addEventListener('online', () => {
-        const networkStatus = document.getElementById('networkStatus');
-        if (networkStatus) {
-            networkStatus.textContent = ' Back Online';
-            networkStatus.className = 'network-status online';
-            networkStatus.style.display = 'block';
-            
-            setTimeout(() => {
-                productManager.fetchFreshProducts();
-            }, 1000);
-        }
-    });
-    console.log('Product Manager initialized');
+    console.log('Application initialized successfully');
 });
 </script>
 </body>
