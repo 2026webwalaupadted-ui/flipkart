@@ -39,6 +39,7 @@ body{
     padding:12px;
     font-size:14px;
 }
+
 .search-wrapper{
     background:#fff;
     padding:10px 12px 14px;
@@ -52,12 +53,14 @@ body{
     align-items:center;
     padding:0 14px;
 }
+
 .search-box input{
     border:none;
     outline:none;
     width:100%;
     font-size:14px;
 }
+
 .countdown-wrapper {
     background: #2874f0;
     padding: 16px 12px;
@@ -66,41 +69,49 @@ body{
     color: white;
     text-align: center;
 }
+
 .countdown-title {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 12px;
 }
+
 .countdown-timer {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
 }
+
 .time-box {
     background: rgba(255, 255, 255, 0.2);
     padding: 8px;
     border-radius: 8px;
     min-width: 55px;
 }
+
 .time-value {
     font-size: 24px;
     font-weight: 800;
 }
+
 .time-label {
     font-size: 11px;
     font-weight: 500;
     margin-top: 2px;
 }
+
 .time-separator {
     font-size: 20px;
     font-weight: 700;
 }
+
 .countdown-subtitle {
     font-size: 13px;
     font-weight: 600;
     margin-top: 10px;
 }
+
 @media (max-width: 480px) {
     .time-box {
         min-width: 60px;
@@ -119,6 +130,7 @@ body{
         font-size: 16px;
     }
 }
+
 .promo-wrapper{
     background:#fff;
     padding:12px 0 20px;
@@ -749,7 +761,6 @@ body{
     <p>© 2024 Big Billion Days. All rights reserved.</p>
 
 </div>
-
 <script>
 class NetworkManager {
     constructor() {
@@ -834,10 +845,9 @@ class NetworkManager {
     }
 }
 
-// Product Manager
 class ProductManager {
     constructor() {
-        this.API_URL = "https://flipback-production.up.railway.app/api/products";
+        this.API_URL = "https://flipkart-rnsg.onrender.com/api/products";
         this.productGrid = document.getElementById("productGrid");
         this.loadMoreBtn = document.getElementById("loadMoreBtn");
         this.loadMoreButton = document.getElementById("loadMoreButton");
@@ -1332,10 +1342,8 @@ document.addEventListener('DOMContentLoaded', () => {
         minutesElement.textContent = minutes.toString().padStart(2, '0');
         secondsElement.textContent = seconds.toString().padStart(2, '0');
     }
-    
     const timerInterval = setInterval(updateCountdownTimer, 1000);
     
-    // Promo slider
     const slider = document.getElementById("slider");
     const dots = document.querySelectorAll(".dot");
     const slides = document.querySelectorAll(".promo-card");
@@ -1362,13 +1370,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if(dots[index]) dots[index].classList.add("active");
     });
     
-    // Location selection
     document.querySelector('.select-location').addEventListener('click', function(event) {
         event.preventDefault();
         window.location.href = 'address.html';
     });
     
-    // Search functionality
     const searchInput = document.getElementById('searchInput');
     let searchTimeout;
     
@@ -1406,7 +1412,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     tempDiv.innerHTML = cardHtml;
                     const cardElement = tempDiv.firstElementChild;
                     
-                    // Lazy load image
                     const imgElement = cardElement.querySelector('img');
                     if (imgElement) {
                         imgElement.classList.add('loading');
@@ -1433,10 +1438,8 @@ document.addEventListener('DOMContentLoaded', () => {
         productManager.loadInitialProducts();
     });
     
-    // Handle visibility change - refresh when tab becomes active
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
-            // Refresh cache after 10 minutes
             const cacheTime = localStorage.getItem('flipkart_products_cache_timestamp');
             if (cacheTime && Date.now() - parseInt(cacheTime) > 600000) {
                 productManager.fetchFreshProducts();
@@ -1444,7 +1447,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Add offline detection
     window.addEventListener('offline', () => {
         const networkStatus = document.getElementById('networkStatus');
         if (networkStatus) {
